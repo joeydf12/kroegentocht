@@ -203,7 +203,7 @@ async function load(force){
 }
 /* Geen pincodes: de serverfunctie /api/rpc vult de pincode zelf in (KT_PIN in Vercel / .env) */
 async function checkLogin(){
-  try{const r=await rpc('kt_login',{p_pin:''});S.me=r&&r.ok?r:null}catch(e){S.me=null}
+  try{const r=await rpc('kt_login',{p_pin:''});S.me=r&&r.ok?r:null;S.authErr=S.me?'':'De server kon niet inloggen in de database (klopt KT_PIN in Vercel?)'}catch(e){S.me=null;S.authErr=e.message}
 }
 const canEdit=()=>!!S.me;
 const isAdmin=()=>S.me&&S.me.role==='admin';
@@ -243,7 +243,7 @@ function render(force){
   const v=S.view;
   let body='';
   if(v==='scorebord')body=viewScore();else if(v==='teams')body=viewTeams();else body=viewAdmin();
-  const banners=(!S.online?'<div class="banner err">Geen verbinding. Er wordt opnieuw geprobeerd…</div>':'')+
+  const banners=(S.authErr&&!S.me?'<div class="banner err">Wijzigen werkt nu niet: '+esc(S.authErr)+'</div>':'')+(!S.online?'<div class="banner err">Geen verbinding. Er wordt opnieuw geprobeerd…</div>':'')+
     (S.data.hidden_setting&&S.view==='beheerder'?'<div class="banner">De ranglijst is nu verborgen op het scorebord (Instellingen).</div>':'');
   $('#app').innerHTML=`<header class="top"><div class="brand"><img src="${LOGO}" alt=""><div><b>Kroegentocht</b><small>HHC '09</small></div></div>
   <nav><a href="#scorebord" class="${v==='scorebord'?'on':''}">Scorebord</a><a href="#teams" class="${v==='teams'?'on':''}">Teams</a>${v==='beheerder'?'<a href="#beheerder" class="on">Beheer</a>':''}</nav>

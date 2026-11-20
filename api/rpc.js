@@ -9,10 +9,12 @@ module.exports = async function handler(req, res) {
 
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_KEY;
-  if (!url || !key) { res.statusCode = 500; return res.end(JSON.stringify({ message: 'SUPABASE_URL / SUPABASE_KEY ontbreken in de omgevingsvariabelen' })); }
-
   const fn = String((req.query && req.query.fn) || new URL(req.url, 'http://x').searchParams.get('fn') || '');
   if (!ALLOWED.test(fn)) { res.statusCode = 400; return res.end(JSON.stringify({ message: 'Onbekende functie' })); }
+
+  // kt_state (alleen lezen) werkt ook zonder KT_PIN, zodat het scorebord altijd zichtbaar blijft
+  const missing = ['SUPABASE_URL', 'SUPABASE_KEY'].concat(fn === 'kt_state' ? [] : ['KT_PIN']).filter(k => !process.env[k]);
+  if (missing.length) { res.statusCode = 500; return res.end(JSON.stringify({ message: 'Ontbreekt in Vercel > Settings > Environment Variables: ' + missing.join(', ') })); }
 
   let body = req.body;
   if (body === undefined || typeof body === 'string') {
@@ -21,8 +23,7 @@ module.exports = async function handler(req, res) {
   }
   if (!body || typeof body !== 'object' || Array.isArray(body)) body = {};
   // Geen pincodes in de app: de server vult de pincode zelf in (KT_PIN), de browser ziet hem nooit.
-  if (process.env.KT_PIN && fn !== 'kt_state') body.p_pin = process.env.KT_PIN;
-  if (fn === 'kt_state') body.p_pin = process.env.KT_PIN || null;
+  body.p_pin = process.env.KT_PIN || null;
   const payload = JSON.stringify(body);
   if (payload.length > 20000) { res.statusCode = 413; return res.end(JSON.stringify({ message: 'Te groot' })); }
 
