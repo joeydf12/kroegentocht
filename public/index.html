@@ -147,7 +147,7 @@ const store={get(k){try{return localStorage.getItem(k)}catch(e){return mem[k]||n
   set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},
   del(k){try{localStorage.removeItem(k)}catch(e){delete mem[k]}}};
 
-const S={data:null,raw:'',pin:store.get('kt_pin')||'',me:null,view:'scorebord',team:+store.get('kt_team')||0,
+const S={data:null,raw:'',pin:'',me:null,view:'scorebord',team:+store.get('kt_team')||0,
   filter:'all',q:'',tab:'log',adm:{log:[],users:[],logRaw:'',usersRaw:''},logQ:'',online:true,pending:false,
   draft:{title:'',points:'',note:''},gdraft:{},game:store.get('kt_game')||'kaartjes',extraEdit:null,rankHist:{},deal:{},dealOverlap:false,cards:{},assign:{},teams:{}};
 
@@ -170,6 +170,7 @@ function toast(m,cls){const d=document.createElement('div');d.textContent=m;if(c
 
 /* ---------- data ---------- */
 function index(d){
+  d.hidden=!!d.hidden_setting;
   S.cards={};d.cards.forEach(c=>S.cards[c.id]=c);
   S.teams={};d.teams.forEach(t=>S.teams[t.id]=t);
   S.assign={};d.assign.forEach(a=>S.assign[a.card_id+'_'+a.team_id]=a);
@@ -195,29 +196,15 @@ function assignedCount(tid){return S.data.assign.filter(a=>a.team_id===tid).leng
 async function load(force){
   try{
     const d=await rpc('kt_state',{p_pin:S.pin||null});
-    const wasOff=!S.online;S.online=true;S.lastOk=Date.now();
+    const wasOff=!S.online;S.online=true;S.lastOk=Date.now();if(!S.me)checkLogin().then(()=>{if(S.me)render(true)});
     const raw=JSON.stringify(d);
     if(raw!==S.raw||force||wasOff){S.raw=raw;S.data=d;index(d);render()}
   }catch(e){if(S.online){S.online=false;if(S.data)render()}}
 }
-/* S.pin bevat een sessietoken (als supabase/beveiliging_sessies.sql is uitgevoerd) of anders de pincode zelf */
-const isToken=v=>!!v&&v.length>=40;
+/* Geen pincodes: de serverfunctie /api/rpc vult de pincode zelf in (KT_PIN in Vercel / .env) */
 async function checkLogin(){
-  if(!S.pin)return;
-  try{const r=await rpc(isToken(S.pin)?'kt_whoami':'kt_login',isToken(S.pin)?{p_token:S.pin}:{p_pin:S.pin});
-    if(r.ok){S.me=r}else{S.pin='';S.me=null;store.del('kt_pin')}}catch(e){}
+  try{const r=await rpc('kt_login',{p_pin:''});S.me=r&&r.ok?r:null}catch(e){S.me=null}
 }
-async function doLogin(pin){
-  if(!pin){toast('Vul je pincode in','err');return false}
-  try{const r=await rpc('kt_login',{p_pin:pin});
-    if(!r.ok){toast(r.blocked?'Te veel foute pogingen. Probeer het over 10 minuten opnieuw.':'Onjuiste pincode'+(r.left!=null?` (nog ${r.left} pogingen)`:''),'err');return false}
-    S.pin=r.token||pin;S.me=r;store.set('kt_pin',S.pin);
-    if(r.team_id){S.team=r.team_id;store.set('kt_team',r.team_id)}
-    toast('Ingelogd als '+r.name);await load(true);return true}
-  catch(e){toast(e.message,'err');return false}
-}
-function logout(){if(isToken(S.pin))rpc('kt_logout',{p_token:S.pin}).catch(()=>{});
-  S.pin='';S.me=null;store.del('kt_pin');toast('Uitgelogd');load(true)}
 const canEdit=()=>!!S.me;
 const isAdmin=()=>S.me&&S.me.role==='admin';
 
@@ -245,11 +232,7 @@ function modal(title,body,btns){
 }
 const closeModal=()=>{$('#modal').innerHTML='';modalBtns=[]};
 const mv=id=>{const e=$('#modal #'+id);return e?(e.type==='checkbox'?e.checked:e.value):''};
-function loginModal(){
-  modal('Inloggen',`<label>Pincode</label><input id="m_pin" type="password" inputmode="numeric" autocomplete="off" placeholder="Pincode">`,
-   [{label:'Annuleer',cls:'sec',fn:()=>{}},{label:'Inloggen',fn:async()=>{const ok=await doLogin(mv('m_pin').trim());return ok}}]);
-}
-function needLogin(){toast('Log eerst in met je pincode','err');loginModal()}
+function needLogin(){toast('Nog geen verbinding met de server, probeer het zo opnieuw','err');checkLogin().then(()=>render(true))}
 
 /* ---------- render ---------- */
 function render(force){
@@ -261,10 +244,10 @@ function render(force){
   let body='';
   if(v==='scorebord')body=viewScore();else if(v==='teams')body=viewTeams();else body=viewAdmin();
   const banners=(!S.online?'<div class="banner err">Geen verbinding. Er wordt opnieuw geprobeerd…</div>':'')+
-    (S.data.hidden_setting&&S.me?'<div class="banner">De ranglijst is verborgen voor het publiek (alleen ingelogden zien hem).</div>':'');
+    (S.data.hidden_setting&&S.view==='beheerder'?'<div class="banner">De ranglijst is nu verborgen op het scorebord (Instellingen).</div>':'');
   $('#app').innerHTML=`<header class="top"><div class="brand"><img src="${LOGO}" alt=""><div><b>Kroegentocht</b><small>HHC '09</small></div></div>
-  <nav><a href="#scorebord" class="${v==='scorebord'?'on':''}">Scorebord</a><a href="#teams" class="${v==='teams'?'on':''}">Teams</a><a href="#beheerder" class="${v==='beheerder'?'on':''}">Beheer</a></nav>
-  <div class="me">${S.me?`<span>${esc(S.me.name)}</span><button data-act="logout">Uit</button>`:`<button data-act="login">Inloggen</button>`}</div></header>${banners}<main>${body}</main>`;
+  <nav><a href="#scorebord" class="${v==='scorebord'?'on':''}">Scorebord</a><a href="#teams" class="${v==='teams'?'on':''}">Teams</a>${v==='beheerder'?'<a href="#beheerder" class="on">Beheer</a>':''}</nav>
+  </header>${banners}<main>${body}</main>`;
 }
 
 function viewScore(){
@@ -329,7 +312,7 @@ function viewTeams(){
   h+=`<div class="hero" style="--c:${esc(t.color)}"><div><div class="nm">${esc(t.name)}</div><div class="mem" style="white-space:normal">${esc((t.members||'').split('\n').filter(Boolean).join(', ')||'Nog geen teamleden ingevuld')}</div>
     <div class="bar2" style="width:220px;max-width:100%"><i style="width:${st.total?st.done/st.total*100:0}%"></i></div>
     <div class="sub">${st.done}/${st.total} kaartjes gehaald · nog ${st.left} pt te halen</div></div><div class="big">${d.hidden?'?':(t.score||0)}<small style="font-size:14px"> pt</small></div></div>`;
-  if(!canEdit())h+=`<div class="banner" style="border-radius:10px;margin-bottom:8px">Je kijkt alleen mee. <a href="#" data-act="login">Log in</a> met je pincode om af te vinken.</div>`;
+  if(!canEdit())h+=`<div class="banner" style="border-radius:10px;margin-bottom:8px">Verbinding maken met de server…</div>`;
   else{
     const arr=arrivalOrder();const n=arr.indexOf(t.id);
     h+=`<div class="toolbar"><button class="btn ${t.arrived_at?'ok':'sec'} sm" data-act="arrive" data-team="${t.id}">${t.arrived_at?`✓ Aangekomen bij Concordia (#${n+1}, ${fmtTime(t.arrived_at)})`:'Aangekomen bij Concordia?'}</button></div>`;
@@ -405,8 +388,8 @@ function gameCards(t){
 
 /* ---------- beheer ---------- */
 function viewAdmin(){
-  if(!isAdmin())return`<div class="box" style="text-align:center"><h2>Beheerder</h2><p>Log in met de beheerderspincode om het logboek, de teams en de kaartjes te beheren.</p><button class="btn" data-act="login">Inloggen</button></div>`;
-  const tabs=[['log','Logboek'],['teams','Teams'],['cards','Kaartjes'],['users','Gebruikers'],['settings','Instellingen']];
+  if(!isAdmin())return`<div class="box" style="text-align:center"><h2>Beheerder</h2><p>Verbinding maken met de server…</p></div>`;
+  const tabs=[['log','Logboek'],['teams','Teams'],['cards','Kaartjes'],['settings','Instellingen']];
   let h=`<div class="tabs">${tabs.map(([k,l])=>`<button class="btn ${S.tab===k?'':'sec'}" data-act="tab" data-tab="${k}">${l}</button>`).join('')}</div>`;
   if(S.tab==='log')h+=admLog();else if(S.tab==='teams')h+=admTeams();else if(S.tab==='cards')h+=admCards();
   else if(S.tab==='users')h+=admUsers();else h+=admSettings();
@@ -483,7 +466,7 @@ function admSettings(){
   const hid=S.data.hidden_setting;
   return`<div class="box"><h3 style="margin-top:0">Kruiswoordpuzzel</h3><p class="sub">Punten die een team krijgt voor een opgeloste puzzel.</p>
   <div class="grid2"><input type="number" id="pz_pts" value="${S.data.puzzle_points}"><button class="btn" data-act="pzpts">Opslaan</button></div></div>
-  <div class="box"><h3 style="margin-top:0">Ranglijst</h3><p class="sub">Verbergt de scores voor iedereen zonder pincode (spanning voor de prijsuitreiking).</p>
+  <div class="box"><h3 style="margin-top:0">Ranglijst</h3><p class="sub">Verbergt de stand op het scorebord en bij de teams (spanning voor de prijsuitreiking). Afvinken blijft gewoon werken.</p>
   <button class="btn ${hid?'ok':''}" data-act="hidden-toggle">${hid?'Ranglijst nu tonen':'Ranglijst verbergen'}</button></div>
   <div class="box"><h3 style="margin-top:0">Gegevens</h3>
   <div class="toolbar"><button class="btn sec" data-act="export-json">Download back-up (JSON)</button>
@@ -539,8 +522,6 @@ document.addEventListener('click',async ev=>{
   if(el.tagName==='INPUT'&&(a==='note'))return;
   const tid=+el.dataset.team,cid=+el.dataset.card;
   switch(a){
-   case'login':ev.preventDefault();loginModal();break;
-   case'logout':logout();break;
    case'beamer-on':beamer(true);break;
    case'beamer-off':beamer(false);break;
    case'openteam':S.team=tid;store.set('kt_team',tid);location.hash='teams';break;
@@ -600,9 +581,6 @@ document.addEventListener('click',async ev=>{
       [{label:'Annuleer',cls:'sec',fn:()=>{}},{label:'Ja',fn:async()=>{await call('kt_admin_assign_mode',{p_mode:m},'Gedaan')}}]);break}
    case'card-new':cardModal(null);break;
    case'card-edit':cardModal(S.cards[cid]);break;
-   case'user-save':{const id=+el.dataset.id;const tv=mv0('u_team_'+id);
-     const r=await call('kt_admin_user_save',{p_id:id,p_name:mv0('u_name_'+id),p_new_pin:mv0('u_pin_'+id),p_team:tv?+tv:null},'Opgeslagen');
-     if(r){const me=S.adm.users.find(u=>u.id===id);if(!isToken(S.pin)&&me&&S.me&&me.pin===S.pin){S.pin=mv0('u_pin_'+id);store.set('kt_pin',S.pin)}await checkLogin();loadAdmin(true)}break}
    case'hidden-toggle':await call('kt_admin_hidden',{p_hidden:!S.data.hidden_setting},'Aangepast');break;
    case'export-json':{try{const r=await rpc('kt_admin_export',{p_pin:S.pin});download('kroegentocht_backup.json',JSON.stringify(r,null,2),'application/json')}catch(e){toast(e.message,'err')}break}
    case'reset-scores':
@@ -673,6 +651,7 @@ window.addEventListener('hashchange',route);
 (async function boot(){
   route();
   await checkLogin();
+  if(S.view==='beheerder')loadAdmin(true);
   if(S.me&&S.me.team_id&&!store.get('kt_team')){S.team=S.me.team_id}
   await load(true);
   setInterval(()=>{if(document.hidden)return;load(false)},POLL_MS);

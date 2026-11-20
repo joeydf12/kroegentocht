@@ -20,6 +20,9 @@ module.exports = async function handler(req, res) {
     try { body = body ? JSON.parse(body) : {}; } catch (e) { res.statusCode = 400; return res.end(JSON.stringify({ message: 'Ongeldige JSON' })); }
   }
   if (!body || typeof body !== 'object' || Array.isArray(body)) body = {};
+  // Geen pincodes in de app: de server vult de pincode zelf in (KT_PIN), de browser ziet hem nooit.
+  if (process.env.KT_PIN && fn !== 'kt_state') body.p_pin = process.env.KT_PIN;
+  if (fn === 'kt_state') body.p_pin = process.env.KT_PIN || null;
   const payload = JSON.stringify(body);
   if (payload.length > 20000) { res.statusCode = 413; return res.end(JSON.stringify({ message: 'Te groot' })); }
 
