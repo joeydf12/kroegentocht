@@ -257,7 +257,6 @@ const effPts=(a,c)=>a.points_override!=null?a.points_override:c.points;
 function fmtTime(s){if(!s)return'';const d=new Date(s);return d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})}
 function fmtFull(s){const d=new Date(s);return d.toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('nl-NL')}
 function cardLabel(c){return c.fixed_team?'H'+c.fixed_team:'#'+c.sort}
-function arrivalOrder(){return S.data.teams.filter(t=>t.arrived_at).sort((a,b)=>new Date(a.arrived_at)-new Date(b.arrived_at)).map(t=>t.id)}
 
 /* ---------- modal ---------- */
 let modalBtns=[];
@@ -292,13 +291,11 @@ function viewScore(){
   const teams=[...d.teams].sort((a,b)=>(b.score||0)-(a.score||0)||a.id-b.id);
   const top=Math.max(1,...teams.map(t=>t.score||0));
   const rk=ranks(d.teams);const rmap={};rk.forEach(r=>rmap[r.t.id]=r.rank);
-  const arr=arrivalOrder();
   const sorted=teams.map(t=>t.score||0);
   let h=`<div class="toolbar"><h2 style="margin:0;margin-right:auto">Ranglijst</h2><button class="btn sec sm" data-act="beamer-on">Beamer-modus</button></div>`;
   if(d.hidden)h+=`<div class="box" style="text-align:center;font-size:18px">🤫 De stand wordt bekendgemaakt bij Concordia!</div>`;
   teams.forEach(t=>{
     const st=teamStats(t.id);
-    const n=arr.indexOf(t.id);
     let gap='';
     if(!d.hidden){const sc=t.score||0;
       if(rmap[t.id]>1)gap=`−${top-sc} op nr. 1`;
@@ -309,7 +306,7 @@ function viewScore(){
         <div class="mem">${esc((t.members||'').split('\n').filter(Boolean).join(', ')||'—')}</div>
         ${d.hidden?'':`<div class="bar"><i style="width:${Math.max(0,(t.score||0)/top*100)}%"></i></div>`}
         <div class="bar2" title="Voortgang kaartjes"><i style="width:${st.total?st.done/st.total*100:0}%"></i></div>
-        <div class="sub">${st.done}/${st.total} kaartjes${d.hidden?'':` · nog ${st.left} pt te halen`}${t.puzzle_at?' · 🧩 puzzel opgelost':''}${n>=0?` · Concordia: #${n+1} (${fmtTime(t.arrived_at)})`:''}</div></div>
+        <div class="sub">${st.done}/${st.total} kaartjes${d.hidden?'':` · nog ${st.left} pt te halen`}${t.puzzle_at?' · 🧩 puzzel opgelost':''}</div></div>
       <div class="sc">${d.hidden?'?':(t.score||0)}<small> pt</small></div></div>`;
   });
   h+=`<div class="sub" style="text-align:center;margin-top:10px"><span class="live ${S.online?'':'off'}"></span><span id="upd">${updText()}</span> · tik op een team voor de checklist</div>`;
@@ -394,8 +391,6 @@ function viewTeams(){
   const g=GAMES.find(x=>x.k===S.game);
   if(!g){
     /* overzicht: blokken per spel */
-    if(canEdit()){const arr=arrivalOrder();const n=arr.indexOf(t.id);
-      h+=`<button class="btn ${t.arrived_at?'ok':'sec'} wide" data-act="arrive" data-team="${t.id}">${t.arrived_at?`✓ Aangekomen bij Concordia (#${n+1}, ${fmtTime(t.arrived_at)})`:'🏁 Aangekomen bij Concordia?'}</button>`}
     h+=`<div class="tiles">${GAMES.map(x=>{
       const p=d.hidden?null:gamePts(t.id,x.k);
       const info=x.k==='kaartjes'?`${st.done}/${st.total} gehaald`:x.k==='puzzel'?(t.puzzle_at?'✓ Opgelost':'Nog niet opgelost'):(p?`${p} pt`:(d.hidden?'':'Nog niets'));
@@ -627,7 +622,6 @@ document.addEventListener('click',async ev=>{
        if(r&&r.result){S.deal={};const lines=S.data.teams.map(t=>{const x=r.result[t.id]||{};return`${t.name}: ${x.kaartjes} kaartjes, ${x.punten} pt`});
          setTimeout(()=>modal('Verdeling klaar',lines.map(esc).join('<br>'),[{label:'OK',fn:()=>{}}]),50)}}}]);break}
    case'pzpts':{const n=parseInt(mv0('pz_pts'),10);if(isNaN(n)){toast('Vul een getal in','err');return}await call('kt_admin_puzzle_points',{p_points:n},'Opgeslagen');break}
-   case'arrive':{if(!canEdit())return needLogin();const t=S.teams[tid];await call('kt_set_arrival',{p_team:tid,p_on:!t.arrived_at});break}
    case'game':location.hash='teams/'+el.dataset.g;break;
    case'game-back':location.hash='teams';break;
    case'step':{if(!canEdit())return needLogin();const k=el.dataset.k;const [tid2,gk]=[+k.split('|')[0],k.slice(k.indexOf('|')+1)];queueTotal(k,stepTotal(tid2,gk)+ +el.dataset.d);break}
