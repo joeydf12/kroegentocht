@@ -1,7 +1,9 @@
 # Kroegentocht HHC '09 – scorebord
 
 ## Mappen
-- `public/index.html` – de app (één bestand). Praat live met Supabase (project HHCdatabase).
+- `public/index.html` – de app (één bestand). Praat via `/api/rpc` met de database.
+- `api/rpc.js` – Vercel-serverfunctie die aanvragen doorstuurt naar Supabase. Het Supabase-adres en de sleutel staan alleen in de omgevingsvariabelen, niet in de code of de browser.
+- `.env` – (alleen lokaal, niet op GitHub) `SUPABASE_URL` en `SUPABASE_KEY`. Voorbeeld: `.env.example`.
 - `public/icon.png`, `public/manifest.webmanifest` – icoon en "zet op beginscherm".
 - `vercel.json` – Vercel-instellingen (geen build nodig, map `public` wordt online gezet).
 - `supabase/beveiliging_sessies.sql` – **aangeraden** beveiligingsupdate (zie hieronder).
@@ -10,13 +12,16 @@
 
 ## Online zetten op Vercel
 **Optie A – via GitHub (aangeraden, elke wijziging gaat automatisch live)**
-1. Maak een (privé) repository op GitHub en zet deze map erin (bijv. met GitHub Desktop).
+1. Repository: https://github.com/joeydf12/kroegentocht
 2. Ga naar vercel.com > Add New > Project > kies de repository.
-3. Framework Preset: **Other**. Verder niets invullen (alles staat in `vercel.json`). Klik Deploy.
-4. Vanaf nu: elke push naar GitHub = binnen ±20 seconden live.
+3. Framework Preset: **Other**.
+4. Klap **Environment Variables** open en plak de inhoud van `.env` erin (Vercel herkent `NAAM=waarde`-regels en maakt er automatisch losse variabelen van). Klik Deploy.
+5. Vanaf nu: elke push naar GitHub = binnen ±20 seconden live.
+
+Wijzig je later een variabele (Settings > Environment Variables), doe dan Deployments > ⋯ > Redeploy.
 
 **Optie B – zonder GitHub**
-1. `npx vercel` in deze map (eerste keer inloggen), daarna `npx vercel --prod` om live te zetten.
+1. `npx vercel` in deze map (eerste keer inloggen), `npx vercel env add` voor de twee variabelen, daarna `npx vercel --prod`.
 
 ## Links
 | Link | Wat |

@@ -9,7 +9,6 @@
 <link rel="icon" href="/icon.png" type="image/png">
 <link rel="apple-touch-icon" href="/icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="preconnect" href="https://kvgymwsasbklkgmrykgv.supabase.co">
 <style>
 :root{--blue:#1f2a8a;--orange:#f39a1e;--ink:#161a2b;--mut:#667;--bg:#f2f4fa;--card:#fff;--line:#dfe3f0;--ok:#1f9d4c;--bad:#c62828}
 *{box-sizing:border-box}
@@ -128,7 +127,6 @@ body.beamer .beamer-x{display:block}
 <div id="toast"></div>
 <script>
 'use strict';
-const CFG={url:'https://kvgymwsasbklkgmrykgv.supabase.co',key:'sb_publishable_3eyo6iR4KmXIkUtwmZjhvA_KxG7RJyt'};
 const LOGO='/icon.png';
 const POLL_MS=3000;
 const PRESETS=['Bierproeverij','Juffen','Hoger/lager','30 seconds','Performance / karaoke','Kruiswoordpuzzel'];
@@ -157,8 +155,8 @@ const S={data:null,raw:'',pin:store.get('kt_pin')||'',me:null,view:'scorebord',t
 const ERR={ONGELDIGE_PIN:'Onjuiste of verlopen pincode',ALLEEN_BEHEERDER:'Alleen de beheerder mag dit',
   KAARTJE_NIET_TOEGEWEZEN:'Dit kaartje is niet aan dit team toegewezen',PIN_BESTAAT_AL:'Deze pincode is al in gebruik'};
 async function rpc(fn,args){
-  const r=await fetch(CFG.url+'/rest/v1/rpc/'+fn,{method:'POST',
-    headers:{apikey:CFG.key,Authorization:'Bearer '+CFG.key,'Content-Type':'application/json'},
+  const r=await fetch('/api/rpc?fn='+encodeURIComponent(fn),{method:'POST',
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify(args||{})});
   const t=await r.text();let j;try{j=JSON.parse(t)}catch(e){j=t}
   if(!r.ok){const m=(j&&j.message)||String(t);throw new Error(ERR[m]||ERR[(m.match(/[A-Z_]{6,}/)||[])[0]]||m)}
