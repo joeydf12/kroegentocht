@@ -2,7 +2,9 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>HHC '09 Kroegentocht – scorebord</title>
 <meta name="theme-color" content="#1f2a8a">
 <meta name="description" content="Live scorebord van de HHC '09 kroegentocht">
@@ -95,7 +97,7 @@ pre{background:#10142b;color:#dfe6ff;padding:10px;border-radius:10px;overflow:au
 .gap{font-size:13px;font-weight:700;color:var(--mut)}
 .pzbox{border-left:6px solid var(--orange)}
 .empty{text-align:center;color:var(--mut);padding:30px 10px}
-.gtabs{display:flex;gap:6px;overflow-x:auto;padding:8px 2px;margin:4px 0 6px;background:var(--bg);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.gtabs-old{display:flex;gap:6px;overflow-x:auto;padding:8px 2px;margin:4px 0 6px;background:var(--bg);scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .gtabs::-webkit-scrollbar{display:none}
 .gtabs button{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:92px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:7px 10px;font-weight:700;font-size:13px;color:var(--ink)}
 .gtabs button .gi{font-size:20px;line-height:1}
@@ -106,6 +108,40 @@ pre{background:#10142b;color:#dfe6ff;padding:10px;border-radius:10px;overflow:au
 .gstand div{background:#fff;border-radius:10px;padding:6px 10px;border-left:6px solid var(--c);display:flex;justify-content:space-between;align-items:center;font-size:14px}
 .gstand div.me{outline:2px solid var(--c)}
 .qpts{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+/* onderbalk + iPhone safe areas */
+.top{padding-top:calc(8px + env(safe-area-inset-top));padding-left:calc(12px + env(safe-area-inset-left));padding-right:calc(12px + env(safe-area-inset-right))}
+main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;gap:8px;background:var(--blue);padding:8px calc(10px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));box-shadow:0 -4px 16px #0003}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;border-radius:14px;color:#fff;text-decoration:none;font-weight:800;font-size:17px;background:#ffffff14;-webkit-tap-highlight-color:transparent}
+.bnav a span{font-size:24px;line-height:1}
+.bnav a.on{background:var(--orange);color:#1b1b1b}
+body.beamer .bnav{display:none}
+body.beamer main{padding-bottom:20px}
+#toast{bottom:calc(96px + env(safe-area-inset-bottom))}
+.teamchips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.teamchips .chip{padding:11px 4px;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn.wide{display:block;width:100%;padding:14px;font-size:16px;margin:8px 0}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+@media(min-width:700px){.tiles{grid-template-columns:repeat(3,1fr)}}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:128px;padding:14px 8px;border:2px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);text-align:center;-webkit-tap-highlight-color:transparent;transition:transform .1s}
+.tile:active{transform:scale(.97)}
+.tile .ti{font-size:38px;line-height:1}
+.tile .tl{font-weight:800;font-size:16px}
+.tile .tinfo{font-size:13px;font-weight:700;color:var(--mut)}
+.tile.has{border-color:var(--ok);background:#effaf3}
+.tile.has .tinfo{color:var(--ok)}
+.gbar{display:flex;align-items:center;gap:10px;margin:10px 0 6px}
+.gbar .back{padding:12px 16px;font-size:16px}
+.gbar .gtitle{flex:1;font-weight:900;font-size:19px;min-width:0}
+.gbar .gpts{font-weight:900;font-size:20px;color:var(--blue);white-space:nowrap}
+.hint{font-size:13px;color:var(--mut);margin:4px 0 8px}
+.stepper{display:flex;align-items:stretch;gap:8px;margin-top:8px}
+.stepper .sbtn{flex:none;width:58px;border:0;border-radius:14px;background:var(--blue);color:#fff;font-size:30px;font-weight:900;line-height:1;-webkit-tap-highlight-color:transparent}
+.stepper .sval{flex:1;min-width:0;text-align:center;font-size:24px;font-weight:900;padding:10px}
+.stepper.big .sbtn{width:76px;font-size:40px}
+.stepper.big .sval{font-size:40px;padding:14px}
+.sstate{min-height:18px;font-size:12px;font-weight:700;color:var(--ok);text-align:center;margin-top:4px}
+.qpts .btn{flex:1;font-size:16px;padding:12px}
 .live{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle;animation:pulse 2s infinite}
 .live.off{background:var(--bad);animation:none}
 @keyframes pulse{50%{opacity:.35}}
@@ -150,7 +186,7 @@ const store={get(k){try{return localStorage.getItem(k)}catch(e){return mem[k]||n
 
 const S={data:null,raw:'',pin:'',me:null,view:'scorebord',team:+store.get('kt_team')||0,
   filter:'all',q:'',tab:'log',adm:{log:[],users:[],logRaw:'',usersRaw:''},logQ:'',online:true,pending:false,
-  draft:{title:'',points:'',note:''},gdraft:{},game:store.get('kt_game')||'kaartjes',extraEdit:null,rankHist:{},deal:{},dealOverlap:false,cards:{},assign:{},teams:{}};
+  draft:{title:'',points:'',note:''},gdraft:{},game:null,pend:{},saved:{},extraEdit:null,rankHist:{},deal:{},dealOverlap:false,cards:{},assign:{},teams:{}};
 
 /* ---------- API ---------- */
 const ERR={ONGELDIGE_PIN:'Onjuiste of verlopen pincode',ALLEEN_BEHEERDER:'Alleen de beheerder mag dit',
@@ -247,8 +283,8 @@ function render(force){
   const banners=(S.authErr&&!S.me?'<div class="banner err">Wijzigen werkt nu niet: '+esc(S.authErr)+'</div>':'')+(!S.online?'<div class="banner err">Geen verbinding. Er wordt opnieuw geprobeerd…</div>':'')+
     (S.data.hidden_setting&&S.view==='beheerder'?'<div class="banner">De ranglijst is nu verborgen op het scorebord (Instellingen).</div>':'');
   $('#app').innerHTML=`<header class="top"><div class="brand"><img src="${LOGO}" alt=""><div><b>Kroegentocht</b><small>HHC '09</small></div></div>
-  <nav><a href="#scorebord" class="${v==='scorebord'?'on':''}">Scorebord</a><a href="#teams" class="${v==='teams'?'on':''}">Teams</a>${v==='beheerder'?'<a href="#beheerder" class="on">Beheer</a>':''}</nav>
-  </header>${banners}<main>${body}</main>`;
+  </header>${banners}<main>${body}</main>
+  <nav class="bnav" aria-label="Hoofdmenu"><a href="#scorebord" class="${v==='scorebord'?'on':''}"><span>🏆</span>Scorebord</a><a href="#teams" class="${v==='teams'?'on':''}"><span>📋</span>Teams</a>${v==='beheerder'?'<a href="#beheerder" class="on"><span>⚙️</span>Beheer</a>':''}</nav>`;
 }
 
 function viewScore(){
@@ -304,58 +340,96 @@ function gameStand(gk){
   const rows=S.data.teams.map(x=>({x,p:gamePts(x.id,gk)})).sort((a,b)=>b.p-a.p);
   return`<div class="gstand">${rows.map(r=>`<div style="--c:${esc(r.x.color)}" class="${r.x.id===S.team?'me':''}"><span>${esc(r.x.name)}</span><b>${r.p}</b></div>`).join('')}</div>`}
 
+/* ---- puntenteller met automatisch opslaan ----
+   sleutel "spel" = een spel uit GAMES (juffen/30s/hl) of "p:<titel>" (bijv. p:Bierproeverij).
+   Per team en spel wordt één totaal bewaard (één regel in kt_extra). */
+const SAVE_DELAY=700;
+function stepRows(tid,gk){
+  if(gk.startsWith('p:')){const ti=gk.slice(2).toLowerCase();return S.data.extra.filter(e=>e.team_id===tid&&(e.title||'').toLowerCase().trim()===ti).sort((a,b)=>a.id-b.id)}
+  return S.data.extra.filter(e=>e.team_id===tid&&gameOf(e)===gk).sort((a,b)=>a.id-b.id)}
+function stepLabel(gk){return gk.startsWith('p:')?gk.slice(2):GAMES.find(g=>g.k===gk).l}
+function stepTotal(tid,gk){const k=tid+'|'+gk;if(S.pend[k])return S.pend[k].v;return stepRows(tid,gk).reduce((s,e)=>s+(e.points||0),0)}
+function stepper(tid,gk,big){
+  const k=tid+'|'+gk;const v=stepTotal(tid,gk);const p=S.pend[k];
+  const state=p?(p.saving?'Opslaan…':'Wijziging…'):(S.saved[k]&&Date.now()-S.saved[k]<4000?'✓ Opgeslagen':'');
+  return`<div class="stepper ${big?'big':''}">
+    <button class="sbtn" data-act="step" data-k="${esc(k)}" data-d="-1" aria-label="1 punt eraf">−</button>
+    <input type="number" inputmode="numeric" class="sval" data-act="stepval" data-k="${esc(k)}" value="${v}" aria-label="Punten ${esc(stepLabel(gk))}">
+    <button class="sbtn" data-act="step" data-k="${esc(k)}" data-d="1" aria-label="1 punt erbij">+</button>
+  </div><div class="sstate" data-st="${esc(k)}">${state}</div>`}
+function queueTotal(k,v){
+  const p=S.pend[k]||(S.pend[k]={});p.v=v;clearTimeout(p.timer);
+  p.timer=setTimeout(()=>saveTotal(k),SAVE_DELAY);render(true);
+}
+async function saveTotal(k){
+  const p=S.pend[k];if(!p)return;if(p.saving){p.again=true;return}
+  p.saving=true;const v=p.v;const [tidS,gk]=[k.slice(0,k.indexOf('|')),k.slice(k.indexOf('|')+1)];const tid=+tidS;
+  const rows=stepRows(tid,gk);const label=stepLabel(gk);
+  try{
+    if(!rows.length){if(v!==0)await rpc('kt_extra_save',{p_pin:S.pin,p_id:null,p_team:tid,p_title:label,p_points:v,p_note:''})}
+    else{const rest=rows.slice(1).reduce((s,e)=>s+(e.points||0),0);const first=rows[0];const nv=v-rest;
+      if(nv===0&&rows.length===1)await rpc('kt_extra_delete',{p_pin:S.pin,p_id:first.id});
+      else if(nv!==first.points)await rpc('kt_extra_save',{p_pin:S.pin,p_id:first.id,p_team:tid,p_title:first.title,p_points:nv,p_note:first.note||''})}
+    await load(true);
+    if(p.again&&S.pend[k]===p&&p.v!==v){p.saving=false;p.again=false;return saveTotal(k)}
+    if(S.pend[k]===p&&p.v===v){delete S.pend[k];S.saved[k]=Date.now();setTimeout(()=>render(),4100)}
+    else if(S.pend[k]===p){p.saving=false}
+    render();
+  }catch(e){p.saving=false;toast('Opslaan mislukt: '+e.message+' – probeer opnieuw','err');render(true)}
+}
+
+function teamHeader(t,st){
+  const d=S.data;
+  return`<div class="chips teamchips">${d.teams.map(x=>`<button class="chip ${x.id===S.team?'on':''}" style="--c:${esc(x.color)}" data-act="pickteam" data-team="${x.id}">${esc(x.name)}</button>`).join('')}</div>
+  <div class="hero" style="--c:${esc(t.color)}"><div><div class="nm">${esc(t.name)}</div><div class="mem" style="white-space:normal">${esc((t.members||'').split('\n').filter(Boolean).join(', ')||'Nog geen teamleden ingevuld')}</div>
+    <div class="bar2" style="width:220px;max-width:100%"><i style="width:${st.total?st.done/st.total*100:0}%"></i></div>
+    <div class="sub">${st.done}/${st.total} kaartjes gehaald · nog ${st.left} pt te halen</div></div><div class="big">${d.hidden?'?':(t.score||0)}<small style="font-size:14px"> pt</small></div></div>`}
+
 function viewTeams(){
   const d=S.data;const t=S.teams[S.team];
   if(!t)return'<div class="empty">Geen teams</div>';
   const st=teamStats(t.id);
-  if(!GAMES.some(g=>g.k===S.game))S.game='kaartjes';
-  let h=`<div class="chips">${d.teams.map(x=>`<button class="chip ${x.id===S.team?'on':''}" style="--c:${esc(x.color)}" data-act="pickteam" data-team="${x.id}">${esc(x.name)}</button>`).join('')}</div>`;
-  h+=`<div class="hero" style="--c:${esc(t.color)}"><div><div class="nm">${esc(t.name)}</div><div class="mem" style="white-space:normal">${esc((t.members||'').split('\n').filter(Boolean).join(', ')||'Nog geen teamleden ingevuld')}</div>
-    <div class="bar2" style="width:220px;max-width:100%"><i style="width:${st.total?st.done/st.total*100:0}%"></i></div>
-    <div class="sub">${st.done}/${st.total} kaartjes gehaald · nog ${st.left} pt te halen</div></div><div class="big">${d.hidden?'?':(t.score||0)}<small style="font-size:14px"> pt</small></div></div>`;
+  let h=teamHeader(t,st);
   if(!canEdit())h+=`<div class="banner" style="border-radius:10px;margin-bottom:8px">Verbinding maken met de server…</div>`;
-  else{
-    const arr=arrivalOrder();const n=arr.indexOf(t.id);
-    h+=`<div class="toolbar"><button class="btn ${t.arrived_at?'ok':'sec'} sm" data-act="arrive" data-team="${t.id}">${t.arrived_at?`✓ Aangekomen bij Concordia (#${n+1}, ${fmtTime(t.arrived_at)})`:'Aangekomen bij Concordia?'}</button></div>`;
-  }
-  /* tabbalk met spellen */
-  h+=`<div class="gtabs" role="tablist">${GAMES.map(g=>{
-    const p=d.hidden?0:gamePts(t.id,g.k);
-    const extra=g.k==='kaartjes'?`${st.done}/${st.total}`:g.k==='puzzel'?(t.puzzle_at?'✓ opgelost':''):(p?p+' pt':'');
-    return`<button role="tab" aria-selected="${S.game===g.k}" class="${S.game===g.k?'on':''}" data-act="game" data-g="${g.k}"><span class="gi">${g.i}</span>${esc(g.l)}${extra?`<small>${extra}</small>`:''}</button>`}).join('')}</div>`;
   const g=GAMES.find(x=>x.k===S.game);
-  if(g.k==='kaartjes')h+=gameCards(t);
+  if(!g){
+    /* overzicht: blokken per spel */
+    if(canEdit()){const arr=arrivalOrder();const n=arr.indexOf(t.id);
+      h+=`<button class="btn ${t.arrived_at?'ok':'sec'} wide" data-act="arrive" data-team="${t.id}">${t.arrived_at?`✓ Aangekomen bij Concordia (#${n+1}, ${fmtTime(t.arrived_at)})`:'🏁 Aangekomen bij Concordia?'}</button>`}
+    h+=`<div class="tiles">${GAMES.map(x=>{
+      const p=d.hidden?null:gamePts(t.id,x.k);
+      const info=x.k==='kaartjes'?`${st.done}/${st.total} gehaald`:x.k==='puzzel'?(t.puzzle_at?'✓ Opgelost':'Nog niet opgelost'):(p?`${p} pt`:(d.hidden?'':'Nog niets'));
+      const done=x.k==='puzzel'?!!t.puzzle_at:x.k==='kaartjes'?st.done>0:!!p;
+      return`<button class="tile ${done?'has':''}" data-act="game" data-g="${x.k}"><span class="ti">${x.i}</span><span class="tl">${esc(x.l)}</span><span class="tinfo">${info}</span></button>`}).join('')}</div>`;
+    return h;
+  }
+  /* detailscherm van één spel */
+  h+=`<div class="gbar"><button class="btn back" data-act="game-back">← Terug</button><div class="gtitle">${g.i} ${esc(g.l)}</div>${d.hidden?'':`<div class="gpts">${gamePts(t.id,g.k)} pt</div>`}</div>`;
+  if(g.k==='kaartjes'){h+=`<p class="hint">Tik op het vakje om af te vinken. Alles wordt meteen opgeslagen.</p>`+gameCards(t)}
   else if(g.k==='puzzel'){const po=puzzleOrder();const pn=po.indexOf(t.id);
-    h+=`<div class="box pzbox"><b>🧩 Kruiswoordpuzzel</b> <span class="sub">(${d.puzzle_points} pt)</span>
-     ${t.puzzle_at?`<span class="badge">Opgelost om ${fmtTime(t.puzzle_at)} (#${pn+1})</span>`:''}
-     ${canEdit()?`<div class="grid2" style="margin-top:8px"><input type="text" id="pz_ans" placeholder="Oplossing (HHC'09)" value="${esc(t.puzzle_answer||'')}">
-     <button class="btn ${t.puzzle_at?'ok':'sec'}" data-act="puzzle" data-team="${t.id}">${t.puzzle_at?'✓ Opgelost (tik om in te trekken)':'Markeer als opgelost'}</button></div>`
+    h+=`<div class="box pzbox"><div class="sub">Een opgeloste puzzel is ${d.puzzle_points} punten waard.</div>
+     ${canEdit()?`<label class="sub" style="display:block;margin:10px 0 4px">Oplossing (wordt automatisch opgeslagen)</label><input type="text" id="pz_ans" data-act="pzans" data-team="${t.id}" placeholder="Oplossing" value="${esc(t.puzzle_answer||'')}">
+     <button class="btn wide ${t.puzzle_at?'ok':''}" style="margin-top:10px" data-act="puzzle" data-team="${t.id}">${t.puzzle_at?`✓ Opgelost om ${fmtTime(t.puzzle_at)} (#${pn+1}) – tik om in te trekken`:'Markeer als opgelost'}</button>`
      :(t.puzzle_answer?`<div class="meta">Oplossing: ${esc(t.puzzle_answer)}</div>`:'')}</div>`;
     if(!d.hidden&&po.length)h+=`<h3>Volgorde opgelost</h3>`+po.map((id,i)=>`<div class="meta">#${i+1} ${esc(S.teams[id].name)} · ${fmtTime(S.teams[id].puzzle_at)}</div>`).join('');
   }
-  else{
-    const ex=d.extra.filter(e=>e.team_id===t.id&&gameOf(e)===g.k);
-    h+=`<h3>${g.i} ${esc(g.l)} – ${esc(t.name)}${d.hidden?'':` · ${gamePts(t.id,g.k)} pt`}</h3>`;
-    if(g.k!=='overig')h+=gameStand(g.k);
-    if(!ex.length)h+='<div class="meta" style="margin-bottom:8px">Nog geen punten ingevuld.</div>';
-    ex.forEach(e=>{h+=extraRow(e)});
-    if(canEdit()){
-      if(g.k==='overig'){
-        h+=`<div class="box"><div class="chips" style="margin-bottom:8px">${OVERIG_PRESETS.map((p,i)=>`<button class="chip" data-act="preset" data-i="${i}" style="--c:#667">${esc(p)}</button>`).join('')}</div>
-        <div class="grid2"><div><input type="text" id="x_title" data-draft="title" placeholder="Omschrijving" value="${esc(S.draft.title)}"></div>
-        <div><input type="number" id="x_points" data-draft="points" inputmode="numeric" placeholder="Punten (mag negatief)" value="${esc(S.draft.points)}"></div></div>
-        <input type="text" id="x_note" data-draft="note" placeholder="Notitie (optioneel)" style="margin-top:8px" value="${esc(S.draft.note)}">
-        <div class="dbtn"><button class="btn sec" data-act="correction" data-team="${t.id}">± Correctie</button><button class="btn" data-act="extra-add" data-team="${t.id}">Toevoegen</button></div></div>`;
-      }else{
-        const gd=S.gdraft[g.k]||{points:'',note:''};
-        h+=`<div class="box"><b>Punten voor ${esc(g.l)} toevoegen</b>
-        <div class="qpts">${[1,2,3,5,10].map(n=>`<button class="btn sec sm" data-act="gq" data-n="${n}">+${n}</button>`).join('')}</div>
-        <div class="grid2"><div><input type="number" id="g_points" data-gdraft="points" inputmode="numeric" placeholder="Punten (mag negatief)" value="${esc(gd.points)}"></div>
-        <div><input type="text" id="g_note" data-gdraft="note" placeholder="Ronde / notitie (optioneel)" value="${esc(gd.note)}"></div></div>
-        <div class="dbtn"><button class="btn" data-act="game-add" data-team="${t.id}" data-g="${g.k}">Toevoegen</button></div></div>`;
-      }
-    }
+  else if(g.k==='overig'){
+    h+=`<p class="hint">Punten met + en − aanpassen; alles wordt automatisch opgeslagen.</p>`;
+    OVERIG_PRESETS.forEach(p=>{h+=`<div class="box"><b>${esc(p)}</b>${canEdit()?stepper(t.id,'p:'+p):''}</div>`});
+    const pre=OVERIG_PRESETS.map(p=>p.toLowerCase());
+    const other=d.extra.filter(e=>e.team_id===t.id&&gameOf(e)==='overig'&&!pre.includes((e.title||'').toLowerCase().trim()));
+    h+=`<h3>Correcties &amp; overige punten</h3>`;
+    if(!other.length)h+='<div class="meta" style="margin-bottom:8px">Nog niets.</div>';
+    other.forEach(e=>{h+=extraRow(e)});
+    if(canEdit())h+=`<button class="btn sec wide" data-act="correction" data-team="${t.id}">± Correctie toevoegen</button>`;
   }
+  else{
+    h+=`<div class="box"><div class="sub" style="text-align:center">Punten van ${esc(t.name)} voor ${esc(g.l)}</div>${canEdit()?stepper(t.id,g.k,true):''}
+      <div class="qpts">${[2,3,5,10].map(n=>`<button class="btn sec" data-act="step" data-k="${t.id}|${g.k}" data-d="${n}">+${n}</button>`).join('')}</div>
+      <p class="hint" style="text-align:center;margin:6px 0 0">Wordt automatisch opgeslagen.</p></div>
+      <h3>Stand ${esc(g.l)}</h3>${gameStand(g.k)}`;
+  }
+  h+=`<button class="btn sec wide" style="margin-top:14px" data-act="game-back">← Terug naar alle spellen</button>`;
   return h;
 }
 
@@ -525,7 +599,7 @@ document.addEventListener('click',async ev=>{
   switch(a){
    case'beamer-on':beamer(true);break;
    case'beamer-off':beamer(false);break;
-   case'openteam':S.team=tid;store.set('kt_team',tid);location.hash='teams';break;
+   case'openteam':S.team=tid;store.set('kt_team',tid);S.game=null;location.hash='teams';break;
    case'pickteam':S.team=tid;store.set('kt_team',tid);render(true);break;
    case'filter':S.filter=el.dataset.f;render(true);break;
    case'toggle':{
@@ -554,13 +628,9 @@ document.addEventListener('click',async ev=>{
          setTimeout(()=>modal('Verdeling klaar',lines.map(esc).join('<br>'),[{label:'OK',fn:()=>{}}]),50)}}}]);break}
    case'pzpts':{const n=parseInt(mv0('pz_pts'),10);if(isNaN(n)){toast('Vul een getal in','err');return}await call('kt_admin_puzzle_points',{p_points:n},'Opgeslagen');break}
    case'arrive':{if(!canEdit())return needLogin();const t=S.teams[tid];await call('kt_set_arrival',{p_team:tid,p_on:!t.arrived_at});break}
-   case'game':S.game=el.dataset.g;store.set('kt_game',S.game);render(true);break;
-   case'gq':{const gd=S.gdraft[S.game]=S.gdraft[S.game]||{points:'',note:''};gd.points=String((parseInt(gd.points,10)||0)+ +el.dataset.n);render(true);break}
-   case'game-add':{if(!canEdit())return needLogin();
-     const g=GAMES.find(x=>x.k===el.dataset.g);const gd=S.gdraft[g.k]||{points:'',note:''};
-     const pts=parseInt(gd.points,10);if(isNaN(pts)||pts===0){toast('Vul de punten in','err');return}
-     const r=await call('kt_extra_save',{p_id:null,p_team:tid,p_title:g.l,p_points:pts,p_note:(gd.note||'').trim()},`${g.l}: ${pts>0?'+':''}${pts} pt`);
-     if(r){S.gdraft[g.k]={points:'',note:''};render(true)}break}
+   case'game':location.hash='teams/'+el.dataset.g;break;
+   case'game-back':location.hash='teams';break;
+   case'step':{if(!canEdit())return needLogin();const k=el.dataset.k;const [tid2,gk]=[+k.split('|')[0],k.slice(k.indexOf('|')+1)];queueTotal(k,stepTotal(tid2,gk)+ +el.dataset.d);break}
    case'preset':S.draft.title=OVERIG_PRESETS[+el.dataset.i];render(true);{const p=$('#x_points');if(p)p.focus()}break;
    case'extra-add':{
      const title=S.draft.title.trim();if(!title){toast('Vul een omschrijving in','err');return}
@@ -601,6 +671,8 @@ document.addEventListener('change',async ev=>{
     await call('kt_admin_card',{p_id:c.id,p_points:n,p_body:c.body,p_exclusive:c.exclusive,p_all_teams:c.all_teams,p_delete:false},'Punten aangepast');return;
   }
   if(el.dataset&&el.dataset.dealov!==undefined){S.dealOverlap=el.checked;return}
+  if(el.dataset&&el.dataset.act==='stepval'){const n=parseInt(el.value,10);if(isNaN(n)){toast('Vul een getal in','err');return}const k=el.dataset.k;clearTimeout((S.pend[k]||{}).timer);(S.pend[k]=S.pend[k]||{}).v=n;el.blur();saveTotal(k);return}
+  if(el.dataset&&el.dataset.act==='pzans'){const t=S.teams[+el.dataset.team];await call('kt_set_puzzle',{p_team:t.id,p_solved:!!t.puzzle_at,p_answer:el.value.trim()},'Oplossing opgeslagen');return}
   if(el.dataset&&el.dataset.act==='note'){
     if(!canEdit())return;
     const cid=+el.dataset.card,tid=+el.dataset.team;
@@ -610,7 +682,6 @@ document.addEventListener('change',async ev=>{
 document.addEventListener('input',ev=>{
   const el=ev.target;
   if(el.dataset&&el.dataset.draft){S.draft[el.dataset.draft]=el.value}
-  else if(el.dataset&&el.dataset.gdraft){(S.gdraft[S.game]=S.gdraft[S.game]||{points:'',note:''})[el.dataset.gdraft]=el.value}
   else if(el.dataset&&el.dataset.deal){S.deal[el.dataset.deal]=el.value}
   else if(el.id==='q'){S.q=el.value;render(true);const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
   else if(el.id==='logq'){S.logQ=el.value;render(true);const q=$('#logq');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
@@ -618,6 +689,7 @@ document.addEventListener('input',ev=>{
 document.addEventListener('focusout',()=>{setTimeout(()=>{if(S.pending&&!(document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)))render()},250)});
 document.addEventListener('keydown',ev=>{
   if(ev.key==='Escape'){closeModal();if(document.body.classList.contains('beamer'))beamer(false)}
+  if(ev.key==='Enter'&&ev.target.dataset&&ev.target.dataset.act==='stepval'){ev.target.blur();return}
   if(ev.key==='Enter'&&$('#modal .ov')&&ev.target.tagName==='INPUT'){const b=$('#modal [data-mb]:last-child');if(b)b.click()}
 });
 
@@ -644,6 +716,9 @@ function beamer(on){
 function route(){
   let h=(location.hash||'').replace(/^#\/?/,'').toLowerCase();
   if(h==='beamer'){h='scorebord';beamer(true)}
+  const prevGame=S.game;S.game=null;
+  if(h.startsWith('teams/')){const gk=h.slice(6);if(GAMES.some(g=>g.k===gk))S.game=gk;h='teams'}
+  if(S.game!==prevGame)window.scrollTo(0,0);
   S.view=['scorebord','teams','beheerder'].includes(h)?h:'scorebord';
   if(S.data)render(true);
   if(S.view==='beheerder')loadAdmin(true);
