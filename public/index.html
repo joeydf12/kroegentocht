@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HHC '09 Kroegentocht – scorebord</title>
+<meta name="theme-color" content="#1f2a8a">
+<meta name="description" content="Live scorebord van de HHC '09 kroegentocht">
+<link rel="icon" href="/icon.png" type="image/png">
+<link rel="apple-touch-icon" href="/icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://kvgymwsasbklkgmrykgv.supabase.co">
+<style>
+:root{--blue:#1f2a8a;--orange:#f39a1e;--ink:#161a2b;--mut:#667;--bg:#f2f4fa;--card:#fff;--line:#dfe3f0;--ok:#1f9d4c;--bad:#c62828}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.top{position:sticky;top:0;z-index:20;background:var(--blue);color:#fff;display:flex;align-items:center;gap:10px;padding:8px 12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;margin-right:auto}
+.brand img{width:38px;height:38px}
+.brand b{display:block;font-size:17px;line-height:1.1}.brand small{opacity:.8}
+nav{display:flex;gap:4px}
+nav a{color:#fff;text-decoration:none;padding:9px 12px;border-radius:8px;font-weight:600}
+nav a.on{background:var(--orange);color:#1b1b1b}
+.me{display:flex;gap:6px;align-items:center;font-size:14px}
+.me button{background:#fff;color:var(--blue);border:0;border-radius:8px;padding:8px 12px;font-weight:700}
+.banner{padding:8px 14px;font-size:14px;background:#fff3cd;color:#664d03;text-align:center}
+.banner.err{background:#fde2e2;color:#8a1111}
+main{max-width:980px;margin:0 auto;padding:14px 12px 80px}
+h2{margin:6px 0 10px;font-size:22px}
+h3{margin:18px 0 8px;font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--blue)}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:12px;margin-bottom:10px;border-left:10px solid var(--c,#999);box-shadow:0 1px 3px #0001;cursor:pointer}
+.rank{font-size:30px;font-weight:800;width:42px;text-align:center;color:var(--blue)}
+.row .info{flex:1;min-width:0}
+.nm{font-size:20px;font-weight:800}
+.mem{color:var(--mut);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:8px;background:#e6e9f5;border-radius:6px;margin:7px 0 4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--c,#999);border-radius:6px;transition:width .6s}
+.sub{font-size:12.5px;color:var(--mut)}
+.sc{font-size:40px;font-weight:900;min-width:70px;text-align:right}
+.sc small{font-size:14px;font-weight:600;color:var(--mut)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:2px solid var(--c,#999);background:#fff;border-radius:20px;padding:8px 14px;font-weight:700}
+.chip.on{background:var(--c,#999);color:#fff}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:9px 12px;font-weight:600}
+.seg button.on{background:var(--blue);color:#fff}
+input[type=text],input[type=number],input[type=search],input[type=password],textarea,select{border:1px solid #c9cfe3;border-radius:10px;padding:10px;background:#fff;width:100%}
+textarea{min-height:70px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;background:var(--blue);color:#fff}
+.btn.sec{background:#e5e8f6;color:var(--blue)}.btn.warn{background:var(--bad)}.btn.ok{background:var(--ok)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.hero{background:var(--card);border-radius:14px;padding:12px 14px;margin:8px 0;display:flex;align-items:center;gap:12px;border-left:10px solid var(--c,#999)}
+.hero .big{font-size:36px;font-weight:900;margin-left:auto}
+.cardrow{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:12px;padding:10px;margin-bottom:8px;border:2px solid transparent}
+.cardrow.done{background:#e8f7ee;border-color:#9bd8b3}
+.chk{flex:none;width:46px;height:46px;border-radius:12px;border:3px solid #9aa3c7;background:#fff;font-size:28px;font-weight:900;line-height:1;color:transparent}
+.cardrow.done .chk{background:var(--ok);border-color:var(--ok);color:#fff}
+.cardrow .bd{flex:1;min-width:0}
+.cardrow .tx{font-size:16px;line-height:1.3}
+.nr{display:inline-block;background:#e5e8f6;color:var(--blue);border-radius:6px;padding:1px 6px;font-size:12px;font-weight:800;margin-right:6px}
+.badge{display:inline-block;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:700;margin:3px 4px 0 0;background:#fff0d6;color:#8a5200}
+.badge.red{background:#fde2e2;color:#8a1111}
+.meta{font-size:12px;color:var(--mut);margin-top:3px}
+.note{margin-top:6px;padding:7px 9px;font-size:14px}
+.pts{flex:none;text-align:center;min-width:58px}
+.pts button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 8px;font-weight:800;color:var(--blue)}
+.pts small{display:block;font-size:11px;color:var(--mut)}
+.box{background:var(--card);border-radius:12px;padding:12px;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:14px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#e9ecf8;font-size:12px;text-transform:uppercase}
+td.c,th.c{text-align:center}
+td input[type=checkbox]{width:22px;height:22px}
+.logrow{background:#fff;border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:14px;border-left:6px solid var(--line)}
+.logrow time{color:var(--mut);font-size:12px;display:block}
+.logrow b{color:var(--blue)}
+.tag{display:inline-block;border-radius:6px;padding:0 7px;font-weight:700;color:#fff;font-size:12px;background:#777}
+pre{background:#10142b;color:#dfe6ff;padding:10px;border-radius:10px;overflow:auto;font-size:12px}
+.ov{position:fixed;inset:0;background:#0008;z-index:50;display:flex;align-items:center;justify-content:center;padding:14px}
+.dlg{background:#fff;border-radius:16px;padding:16px;width:100%;max-width:460px;max-height:90vh;overflow:auto}
+.dlg h3{margin-top:0;font-size:18px;text-transform:none;letter-spacing:0;color:var(--ink)}
+.dbtn{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.dbody label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+#toast div{background:#222;color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;box-shadow:0 4px 14px #0005}
+#toast div.err{background:var(--bad)}
+.bar2{height:5px;background:#e6e9f5;border-radius:4px;margin:2px 0 4px;overflow:hidden}
+.bar2 i{display:block;height:100%;background:#556;border-radius:4px;transition:width .6s}
+.mv{display:inline-block;font-size:15px;font-weight:900;margin-left:6px}.mv.up{color:var(--ok)}.mv.down{color:var(--bad)}
+.gap{font-size:13px;font-weight:700;color:var(--mut)}
+.pzbox{border-left:6px solid var(--orange)}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}
+.gtabs{display:flex;gap:6px;overflow-x:auto;padding:8px 2px;margin:4px 0 6px;background:var(--bg);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.gtabs::-webkit-scrollbar{display:none}
+.gtabs button{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:92px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:7px 10px;font-weight:700;font-size:13px;color:var(--ink)}
+.gtabs button .gi{font-size:20px;line-height:1}
+.gtabs button small{font-size:11px;font-weight:700;color:var(--mut)}
+.gtabs button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.gtabs button.on small{color:#ffd79a}
+.gstand{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;margin-bottom:10px}
+.gstand div{background:#fff;border-radius:10px;padding:6px 10px;border-left:6px solid var(--c);display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.gstand div.me{outline:2px solid var(--c)}
+.qpts{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.live{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:middle;animation:pulse 2s infinite}
+.live.off{background:var(--bad);animation:none}
+@keyframes pulse{50%{opacity:.35}}
+/* beamer */
+body.beamer .top{display:none}
+body.beamer main{max-width:1500px}
+body.beamer .nm{font-size:40px}body.beamer .sc{font-size:90px}body.beamer .rank{font-size:70px;width:90px}
+body.beamer .mem{font-size:22px}body.beamer .sub{font-size:20px}body.beamer .bar{height:16px}
+body.beamer .row{padding:22px;cursor:default}
+.beamer-x{position:fixed;right:10px;top:10px;z-index:30;display:none}
+body.beamer .beamer-x{display:block}
+@media(max-width:560px){.sc{font-size:32px;min-width:56px}.nm{font-size:18px}.rank{font-size:24px;width:30px}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<button class="btn sec beamer-x" data-act="beamer-off">Sluit beamer-modus</button>
+<div id="modal"></div>
+<div id="toast"></div>
+<script>
+'use strict';
+const CFG={url:'https://kvgymwsasbklkgmrykgv.supabase.co',key:'sb_publishable_3eyo6iR4KmXIkUtwmZjhvA_KxG7RJyt'};
+const LOGO='/icon.png';
+const POLL_MS=3000;
+const PRESETS=['Bierproeverij','Juffen','Hoger/lager','30 seconds','Performance / karaoke','Kruiswoordpuzzel'];
+const TEARDOWN_SQL=`-- Verwijdert ALLE kroegentocht-tabellen en -functies (kt_...). Andere tabellen blijven onaangeroerd.
+do $$ declare f record; begin
+  for f in select p.oid::regprocedure s from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+           where n.nspname='public' and p.proname like 'kt\\_%' loop
+    execute 'drop function ' || f.s;
+  end loop;
+end $$;
+drop table if exists public.kt_sessions, public.kt_login_fail, public.kt_log, public.kt_extra, public.kt_assign,
+  public.kt_cards, public.kt_teams, public.kt_users, public.kt_settings cascade;`;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mem={};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},
+  del(k){try{localStorage.removeItem(k)}catch(e){delete mem[k]}}};
+
+const S={data:null,raw:'',pin:store.get('kt_pin')||'',me:null,view:'scorebord',team:+store.get('kt_team')||0,
+  filter:'all',q:'',tab:'log',adm:{log:[],users:[],logRaw:'',usersRaw:''},logQ:'',online:true,pending:false,
+  draft:{title:'',points:'',note:''},gdraft:{},game:store.get('kt_game')||'kaartjes',extraEdit:null,rankHist:{},deal:{},dealOverlap:false,cards:{},assign:{},teams:{}};
+
+/* ---------- API ---------- */
+const ERR={ONGELDIGE_PIN:'Onjuiste of verlopen pincode',ALLEEN_BEHEERDER:'Alleen de beheerder mag dit',
+  KAARTJE_NIET_TOEGEWEZEN:'Dit kaartje is niet aan dit team toegewezen',PIN_BESTAAT_AL:'Deze pincode is al in gebruik'};
+async function rpc(fn,args){
+  const r=await fetch(CFG.url+'/rest/v1/rpc/'+fn,{method:'POST',
+    headers:{apikey:CFG.key,Authorization:'Bearer '+CFG.key,'Content-Type':'application/json'},
+    body:JSON.stringify(args||{})});
+  const t=await r.text();let j;try{j=JSON.parse(t)}catch(e){j=t}
+  if(!r.ok){const m=(j&&j.message)||String(t);throw new Error(ERR[m]||ERR[(m.match(/[A-Z_]{6,}/)||[])[0]]||m)}
+  return j;
+}
+async function call(fn,args,msg){
+  try{const r=await rpc(fn,Object.assign({p_pin:S.pin},args));if(msg)toast(msg);await load(true);return r}
+  catch(e){toast(e.message,'err');await load(true);return null}
+}
+function toast(m,cls){const d=document.createElement('div');d.textContent=m;if(cls)d.className=cls;$('#toast').appendChild(d);setTimeout(()=>d.remove(),cls?4500:2200)}
+
+/* ---------- data ---------- */
+function index(d){
+  S.cards={};d.cards.forEach(c=>S.cards[c.id]=c);
+  S.teams={};d.teams.forEach(t=>S.teams[t.id]=t);
+  S.assign={};d.assign.forEach(a=>S.assign[a.card_id+'_'+a.team_id]=a);
+  if(!S.teams[S.team])S.team=d.teams.length?d.teams[0].id:0;
+  trackRanks(d);
+}
+function trackRanks(d){
+  if(d.hidden)return;
+  const cur={};ranks(d.teams).forEach(r=>cur[r.t.id]=r.rank);
+  let h={};try{h=JSON.parse(store.get('kt_rankhist')||'{}')}catch(e){}
+  const now=Date.now();
+  d.teams.forEach(t=>{const e=h[t.id];
+    if(!e)h[t.id]={rank:cur[t.id],dir:'',ts:0};
+    else if(e.rank!==cur[t.id])h[t.id]={rank:cur[t.id],dir:e.rank>cur[t.id]?'up':'down',ts:now}});
+  S.rankHist=h;store.set('kt_rankhist',JSON.stringify(h));
+}
+function moveArrow(tid){const e=S.rankHist[tid];
+  if(!e||!e.dir||Date.now()-e.ts>300000)return'';
+  return e.dir==='up'?'<span class="mv up" title="Gestegen">▲</span>':'<span class="mv down" title="Gedaald">▼</span>'}
+function puzzleOrder(){return S.data.teams.filter(t=>t.puzzle_at).sort((a,b)=>new Date(a.puzzle_at)-new Date(b.puzzle_at)).map(t=>t.id)}
+function fixedCount(tid){return S.data.cards.filter(c=>c.all_teams||c.fixed_team===tid).length}
+function assignedCount(tid){return S.data.assign.filter(a=>a.team_id===tid).length}
+async function load(force){
+  try{
+    const d=await rpc('kt_state',{p_pin:S.pin||null});
+    const wasOff=!S.online;S.online=true;S.lastOk=Date.now();
+    const raw=JSON.stringify(d);
+    if(raw!==S.raw||force||wasOff){S.raw=raw;S.data=d;index(d);render()}
+  }catch(e){if(S.online){S.online=false;if(S.data)render()}}
+}
+/* S.pin bevat een sessietoken (als supabase/beveiliging_sessies.sql is uitgevoerd) of anders de pincode zelf */
+const isToken=v=>!!v&&v.length>=40;
+async function checkLogin(){
+  if(!S.pin)return;
+  try{const r=await rpc(isToken(S.pin)?'kt_whoami':'kt_login',isToken(S.pin)?{p_token:S.pin}:{p_pin:S.pin});
+    if(r.ok){S.me=r}else{S.pin='';S.me=null;store.del('kt_pin')}}catch(e){}
+}
+async function doLogin(pin){
+  if(!pin){toast('Vul je pincode in','err');return false}
+  try{const r=await rpc('kt_login',{p_pin:pin});
+    if(!r.ok){toast(r.blocked?'Te veel foute pogingen. Probeer het over 10 minuten opnieuw.':'Onjuiste pincode'+(r.left!=null?` (nog ${r.left} pogingen)`:''),'err');return false}
+    S.pin=r.token||pin;S.me=r;store.set('kt_pin',S.pin);
+    if(r.team_id){S.team=r.team_id;store.set('kt_team',r.team_id)}
+    toast('Ingelogd als '+r.name);await load(true);return true}
+  catch(e){toast(e.message,'err');return false}
+}
+function logout(){if(isToken(S.pin))rpc('kt_logout',{p_token:S.pin}).catch(()=>{});
+  S.pin='';S.me=null;store.del('kt_pin');toast('Uitgelogd');load(true)}
+const canEdit=()=>!!S.me;
+const isAdmin=()=>S.me&&S.me.role==='admin';
+
+/* ---------- helpers ---------- */
+function ranks(teams){return teams.map(t=>({t,rank:1+teams.filter(o=>(o.score||0)>(t.score||0)).length}))}
+function teamStats(tid){
+  let done=0,total=0,left=0;
+  S.data.assign.forEach(a=>{if(a.team_id!==tid)return;const c=S.cards[a.card_id];if(!c)return;total++;
+    if(a.done)done++;else left+=c.points});
+  return{done,total,left};
+}
+const effPts=(a,c)=>a.points_override!=null?a.points_override:c.points;
+function fmtTime(s){if(!s)return'';const d=new Date(s);return d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'})}
+function fmtFull(s){const d=new Date(s);return d.toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('nl-NL')}
+function cardLabel(c){return c.fixed_team?'H'+c.fixed_team:'#'+c.sort}
+function arrivalOrder(){return S.data.teams.filter(t=>t.arrived_at).sort((a,b)=>new Date(a.arrived_at)-new Date(b.arrived_at)).map(t=>t.id)}
+
+/* ---------- modal ---------- */
+let modalBtns=[];
+function modal(title,body,btns){
+  modalBtns=btns;
+  $('#modal').innerHTML=`<div class="ov"><div class="dlg"><h3>${title}</h3><div class="dbody">${body}</div>
+  <div class="dbtn">${btns.map((b,i)=>`<button class="btn ${b.cls||''}" data-mb="${i}">${b.label}</button>`).join('')}</div></div></div>`;
+  setTimeout(()=>{const i=$('#modal input:not([type=checkbox]),#modal textarea');if(i)i.focus()},50);
+}
+const closeModal=()=>{$('#modal').innerHTML='';modalBtns=[]};
+const mv=id=>{const e=$('#modal #'+id);return e?(e.type==='checkbox'?e.checked:e.value):''};
+function loginModal(){
+  modal('Inloggen',`<label>Pincode</label><input id="m_pin" type="password" inputmode="numeric" autocomplete="off" placeholder="Pincode">`,
+   [{label:'Annuleer',cls:'sec',fn:()=>{}},{label:'Inloggen',fn:async()=>{const ok=await doLogin(mv('m_pin').trim());return ok}}]);
+}
+function needLogin(){toast('Log eerst in met je pincode','err');loginModal()}
+
+/* ---------- render ---------- */
+function render(force){
+  const ae=document.activeElement;
+  if(!force&&ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&$('#app').contains(ae)){S.pending=true;return}
+  S.pending=false;
+  if(!S.data){$('#app').innerHTML='<main><div class="empty">Laden…</div></main>';return}
+  const v=S.view;
+  let body='';
+  if(v==='scorebord')body=viewScore();else if(v==='teams')body=viewTeams();else body=viewAdmin();
+  const banners=(!S.online?'<div class="banner err">Geen verbinding. Er wordt opnieuw geprobeerd…</div>':'')+
+    (S.data.hidden_setting&&S.me?'<div class="banner">De ranglijst is verborgen voor het publiek (alleen ingelogden zien hem).</div>':'');
+  $('#app').innerHTML=`<header class="top"><div class="brand"><img src="${LOGO}" alt=""><div><b>Kroegentocht</b><small>HHC '09</small></div></div>
+  <nav><a href="#scorebord" class="${v==='scorebord'?'on':''}">Scorebord</a><a href="#teams" class="${v==='teams'?'on':''}">Teams</a><a href="#beheerder" class="${v==='beheerder'?'on':''}">Beheer</a></nav>
+  <div class="me">${S.me?`<span>${esc(S.me.name)}</span><button data-act="logout">Uit</button>`:`<button data-act="login">Inloggen</button>`}</div></header>${banners}<main>${body}</main>`;
+}
+
+function viewScore(){
+  const d=S.data;
+  const teams=[...d.teams].sort((a,b)=>(b.score||0)-(a.score||0)||a.id-b.id);
+  const top=Math.max(1,...teams.map(t=>t.score||0));
+  const rk=ranks(d.teams);const rmap={};rk.forEach(r=>rmap[r.t.id]=r.rank);
+  const arr=arrivalOrder();
+  const sorted=teams.map(t=>t.score||0);
+  let h=`<div class="toolbar"><h2 style="margin:0;margin-right:auto">Ranglijst</h2><button class="btn sec sm" data-act="beamer-on">Beamer-modus</button></div>`;
+  if(d.hidden)h+=`<div class="box" style="text-align:center;font-size:18px">🤫 De stand wordt bekendgemaakt bij Concordia!</div>`;
+  teams.forEach(t=>{
+    const st=teamStats(t.id);
+    const n=arr.indexOf(t.id);
+    let gap='';
+    if(!d.hidden){const sc=t.score||0;
+      if(rmap[t.id]>1)gap=`−${top-sc} op nr. 1`;
+      else{const second=sorted.filter(s=>s<sc).sort((a,b)=>b-a)[0];gap=second!==undefined?`+${sc-second} voorsprong`:'gedeeld nr. 1'}}
+    h+=`<div class="row" style="--c:${esc(t.color)}" data-act="openteam" data-team="${t.id}">
+      <div class="rank">${d.hidden?'?':rmap[t.id]}${d.hidden?'':moveArrow(t.id)}</div>
+      <div class="info"><div class="nm">${esc(t.name)} <span class="gap">${gap}</span></div>
+        <div class="mem">${esc((t.members||'').split('\n').filter(Boolean).join(', ')||'—')}</div>
+        ${d.hidden?'':`<div class="bar"><i style="width:${Math.max(0,(t.score||0)/top*100)}%"></i></div>`}
+        <div class="bar2" title="Voortgang kaartjes"><i style="width:${st.total?st.done/st.total*100:0}%"></i></div>
+        <div class="sub">${st.done}/${st.total} kaartjes${d.hidden?'':` · nog ${st.left} pt te halen`}${t.puzzle_at?' · 🧩 puzzel opgelost':''}${n>=0?` · Concordia: #${n+1} (${fmtTime(t.arrived_at)})`:''}</div></div>
+      <div class="sc">${d.hidden?'?':(t.score||0)}<small> pt</small></div></div>`;
+  });
+  h+=`<div class="sub" style="text-align:center;margin-top:10px"><span class="live ${S.online?'':'off'}"></span><span id="upd">${updText()}</span> · tik op een team voor de checklist</div>`;
+  return h;
+}
+
+/* spellen: scores van spellen worden opgeslagen als "andere opdracht" met de spelnaam als titel */
+const GAMES=[
+  {k:'kaartjes',l:'Geheime opdrachten',i:'🤫'},
+  {k:'juffen',l:'Juffen',i:'🎯',m:['juffen']},
+  {k:'30s',l:'30 seconds',i:'⏱️',m:['30 seconds','30 sec','30seconds']},
+  {k:'hl',l:'Hoger/lager',i:'🃏',m:['hoger/lager','hoger lager','hoger-lager']},
+  {k:'puzzel',l:'Kruiswoordpuzzel',i:'🧩'},
+  {k:'overig',l:'Overig',i:'➕'}];
+const OVERIG_PRESETS=['Bierproeverij','Performance / karaoke'];
+function gameOf(e){const t=(e.title||'').toLowerCase().trim();
+  const g=GAMES.find(g=>g.m&&g.m.some(m=>t===m||t.startsWith(m+' ')||t.startsWith(m+':')));
+  return g?g.k:'overig'}
+function gamePts(tid,gk){
+  if(gk==='kaartjes'){let s=0;S.data.assign.forEach(a=>{if(a.team_id===tid&&a.done&&S.cards[a.card_id])s+=effPts(a,S.cards[a.card_id])});return s}
+  if(gk==='puzzel'){const t=S.teams[tid];return t&&t.puzzle_at?S.data.puzzle_points:0}
+  return S.data.extra.filter(e=>e.team_id===tid&&gameOf(e)===gk).reduce((s,e)=>s+(e.points||0),0)}
+function extraRow(e){
+  return`<div class="cardrow"><div class="bd"><div class="tx"><b>${esc(e.title)}</b></div>${e.note?`<div class="meta">${esc(e.note)}</div>`:''}<div class="meta">${esc(e.created_by||'')} · ${fmtTime(e.created_at)}</div></div>
+    <div class="pts"><b>${e.points>0?'+':''}${e.points} pt</b>${canEdit()?`<div style="margin-top:4px"><button class="btn sec sm" data-act="extra-edit" data-id="${e.id}">Wijzig</button></div>`:''}</div></div>`}
+function gameStand(gk){
+  if(S.data.hidden)return'';
+  const rows=S.data.teams.map(x=>({x,p:gamePts(x.id,gk)})).sort((a,b)=>b.p-a.p);
+  return`<div class="gstand">${rows.map(r=>`<div style="--c:${esc(r.x.color)}" class="${r.x.id===S.team?'me':''}"><span>${esc(r.x.name)}</span><b>${r.p}</b></div>`).join('')}</div>`}
+
+function viewTeams(){
+  const d=S.data;const t=S.teams[S.team];
+  if(!t)return'<div class="empty">Geen teams</div>';
+  const st=teamStats(t.id);
+  if(!GAMES.some(g=>g.k===S.game))S.game='kaartjes';
+  let h=`<div class="chips">${d.teams.map(x=>`<button class="chip ${x.id===S.team?'on':''}" style="--c:${esc(x.color)}" data-act="pickteam" data-team="${x.id}">${esc(x.name)}</button>`).join('')}</div>`;
+  h+=`<div class="hero" style="--c:${esc(t.color)}"><div><div class="nm">${esc(t.name)}</div><div class="mem" style="white-space:normal">${esc((t.members||'').split('\n').filter(Boolean).join(', ')||'Nog geen teamleden ingevuld')}</div>
+    <div class="bar2" style="width:220px;max-width:100%"><i style="width:${st.total?st.done/st.total*100:0}%"></i></div>
+    <div class="sub">${st.done}/${st.total} kaartjes gehaald · nog ${st.left} pt te halen</div></div><div class="big">${d.hidden?'?':(t.score||0)}<small style="font-size:14px"> pt</small></div></div>`;
+  if(!canEdit())h+=`<div class="banner" style="border-radius:10px;margin-bottom:8px">Je kijkt alleen mee. <a href="#" data-act="login">Log in</a> met je pincode om af te vinken.</div>`;
+  else{
+    const arr=arrivalOrder();const n=arr.indexOf(t.id);
+    h+=`<div class="toolbar"><button class="btn ${t.arrived_at?'ok':'sec'} sm" data-act="arrive" data-team="${t.id}">${t.arrived_at?`✓ Aangekomen bij Concordia (#${n+1}, ${fmtTime(t.arrived_at)})`:'Aangekomen bij Concordia?'}</button></div>`;
+  }
+  /* tabbalk met spellen */
+  h+=`<div class="gtabs" role="tablist">${GAMES.map(g=>{
+    const p=d.hidden?0:gamePts(t.id,g.k);
+    const extra=g.k==='kaartjes'?`${st.done}/${st.total}`:g.k==='puzzel'?(t.puzzle_at?'✓ opgelost':''):(p?p+' pt':'');
+    return`<button role="tab" aria-selected="${S.game===g.k}" class="${S.game===g.k?'on':''}" data-act="game" data-g="${g.k}"><span class="gi">${g.i}</span>${esc(g.l)}${extra?`<small>${extra}</small>`:''}</button>`}).join('')}</div>`;
+  const g=GAMES.find(x=>x.k===S.game);
+  if(g.k==='kaartjes')h+=gameCards(t);
+  else if(g.k==='puzzel'){const po=puzzleOrder();const pn=po.indexOf(t.id);
+    h+=`<div class="box pzbox"><b>🧩 Kruiswoordpuzzel</b> <span class="sub">(${d.puzzle_points} pt)</span>
+     ${t.puzzle_at?`<span class="badge">Opgelost om ${fmtTime(t.puzzle_at)} (#${pn+1})</span>`:''}
+     ${canEdit()?`<div class="grid2" style="margin-top:8px"><input type="text" id="pz_ans" placeholder="Oplossing (HHC'09)" value="${esc(t.puzzle_answer||'')}">
+     <button class="btn ${t.puzzle_at?'ok':'sec'}" data-act="puzzle" data-team="${t.id}">${t.puzzle_at?'✓ Opgelost (tik om in te trekken)':'Markeer als opgelost'}</button></div>`
+     :(t.puzzle_answer?`<div class="meta">Oplossing: ${esc(t.puzzle_answer)}</div>`:'')}</div>`;
+    if(!d.hidden&&po.length)h+=`<h3>Volgorde opgelost</h3>`+po.map((id,i)=>`<div class="meta">#${i+1} ${esc(S.teams[id].name)} · ${fmtTime(S.teams[id].puzzle_at)}</div>`).join('');
+  }
+  else{
+    const ex=d.extra.filter(e=>e.team_id===t.id&&gameOf(e)===g.k);
+    h+=`<h3>${g.i} ${esc(g.l)} – ${esc(t.name)}${d.hidden?'':` · ${gamePts(t.id,g.k)} pt`}</h3>`;
+    if(g.k!=='overig')h+=gameStand(g.k);
+    if(!ex.length)h+='<div class="meta" style="margin-bottom:8px">Nog geen punten ingevuld.</div>';
+    ex.forEach(e=>{h+=extraRow(e)});
+    if(canEdit()){
+      if(g.k==='overig'){
+        h+=`<div class="box"><div class="chips" style="margin-bottom:8px">${OVERIG_PRESETS.map((p,i)=>`<button class="chip" data-act="preset" data-i="${i}" style="--c:#667">${esc(p)}</button>`).join('')}</div>
+        <div class="grid2"><div><input type="text" id="x_title" data-draft="title" placeholder="Omschrijving" value="${esc(S.draft.title)}"></div>
+        <div><input type="number" id="x_points" data-draft="points" inputmode="numeric" placeholder="Punten (mag negatief)" value="${esc(S.draft.points)}"></div></div>
+        <input type="text" id="x_note" data-draft="note" placeholder="Notitie (optioneel)" style="margin-top:8px" value="${esc(S.draft.note)}">
+        <div class="dbtn"><button class="btn sec" data-act="correction" data-team="${t.id}">± Correctie</button><button class="btn" data-act="extra-add" data-team="${t.id}">Toevoegen</button></div></div>`;
+      }else{
+        const gd=S.gdraft[g.k]||{points:'',note:''};
+        h+=`<div class="box"><b>Punten voor ${esc(g.l)} toevoegen</b>
+        <div class="qpts">${[1,2,3,5,10].map(n=>`<button class="btn sec sm" data-act="gq" data-n="${n}">+${n}</button>`).join('')}</div>
+        <div class="grid2"><div><input type="number" id="g_points" data-gdraft="points" inputmode="numeric" placeholder="Punten (mag negatief)" value="${esc(gd.points)}"></div>
+        <div><input type="text" id="g_note" data-gdraft="note" placeholder="Ronde / notitie (optioneel)" value="${esc(gd.note)}"></div></div>
+        <div class="dbtn"><button class="btn" data-act="game-add" data-team="${t.id}" data-g="${g.k}">Toevoegen</button></div></div>`;
+      }
+    }
+  }
+  return h;
+}
+
+function gameCards(t){
+  const d=S.data;let h='';
+  h+=`<div class="toolbar"><div class="seg">${[['all','Alles'],['todo','Nog te doen'],['done','Gedaan']].map(([k,l])=>`<button data-act="filter" data-f="${k}" class="${S.filter===k?'on':''}">${l}</button>`).join('')}</div>
+    <input type="search" id="q" placeholder="Zoek kaartje…" value="${esc(S.q)}" style="flex:1;min-width:140px"></div>`;
+  const rows=d.assign.filter(a=>a.team_id===t.id&&S.cards[a.card_id]).map(a=>({a,c:S.cards[a.card_id]}))
+    .filter(r=>S.filter==='all'||(S.filter==='done'?r.a.done:!r.a.done))
+    .filter(r=>!S.q||r.c.body.toLowerCase().includes(S.q.toLowerCase()))
+    .sort((x,y)=>y.c.points-x.c.points||x.c.sort-y.c.sort);
+  if(!rows.length)h+='<div class="empty">Geen kaartjes om te tonen.</div>';
+  let cur=null;
+  rows.forEach(({a,c})=>{
+    if(c.points!==cur){cur=c.points;h+=`<h3>${cur} punten</h3>`}
+    const ep=effPts(a,c);
+    const others=c.exclusive?d.teams.filter(o=>o.id!==t.id&&S.assign[c.id+'_'+o.id]&&S.assign[c.id+'_'+o.id].done):[];
+    h+=`<div class="cardrow ${a.done?'done':''}">
+      <button class="chk" data-act="toggle" data-card="${c.id}" data-team="${t.id}" aria-pressed="${a.done}">✓</button>
+      <div class="bd"><div class="tx"><span class="nr">${cardLabel(c)}</span>${esc(c.body)}</div>
+        ${c.exclusive?'<span class="badge">Maar 1 team</span>':''}${c.all_teams?'<span class="badge">Alle teams</span>':''}
+        ${others.length?`<span class="badge red">Al gehaald door ${others.map(o=>esc(o.name)).join(', ')}</span>`:''}
+        ${a.done?`<div class="meta">✓ ${esc(a.done_by||'')} · ${fmtTime(a.done_at)}</div>`:''}
+        ${canEdit()?`<button class="btn ${a.proof?'ok':'sec'} sm" style="margin-top:5px" data-act="proof" data-card="${c.id}" data-team="${t.id}">📷 Bewijs ${a.proof?'gezien ✓':'gezien?'}</button>`:(a.proof?'<span class="badge">📷 bewijs gezien</span>':'')}
+        ${canEdit()?`<input type="text" class="note" data-act="note" data-card="${c.id}" data-team="${t.id}" placeholder="Notitie (naam, bewijs…)" value="${esc(a.note)}">`:(a.note?`<div class="meta">📝 ${esc(a.note)}</div>`:'')}
+      </div>
+      <div class="pts">${canEdit()?`<button data-act="editpts" data-card="${c.id}" data-team="${t.id}">${ep} pt ✎</button>`:`<b>${ep} pt</b>`}${ep!==c.points?`<small>was ${c.points}</small>`:''}</div></div>`;
+  });
+  return h;
+}
+
+/* ---------- beheer ---------- */
+function viewAdmin(){
+  if(!isAdmin())return`<div class="box" style="text-align:center"><h2>Beheerder</h2><p>Log in met de beheerderspincode om het logboek, de teams en de kaartjes te beheren.</p><button class="btn" data-act="login">Inloggen</button></div>`;
+  const tabs=[['log','Logboek'],['teams','Teams'],['cards','Kaartjes'],['users','Gebruikers'],['settings','Instellingen']];
+  let h=`<div class="tabs">${tabs.map(([k,l])=>`<button class="btn ${S.tab===k?'':'sec'}" data-act="tab" data-tab="${k}">${l}</button>`).join('')}</div>`;
+  if(S.tab==='log')h+=admLog();else if(S.tab==='teams')h+=admTeams();else if(S.tab==='cards')h+=admCards();
+  else if(S.tab==='users')h+=admUsers();else h+=admSettings();
+  return h;
+}
+function logDesc(l){
+  const d=l.details||{};const parts=[];
+  if(d.team)parts.push(`<span class="tag" style="background:${esc((S.teams[d.team_id]||{}).color||'#777')}">${esc(d.team)}</span>`);
+  if(d.kaartje)parts.push(esc(d.kaartje));
+  if(d.titel)parts.push('“'+esc(d.titel)+'”');
+  if(d.titel_was!==undefined)parts.push('“'+esc(d.titel_was)+'” → “'+esc(d.titel_nu)+'”');
+  if(d.was!==undefined)parts.push(`${esc(d.was)} → <b>${esc(d.nu)}</b> pt`);
+  else if(d.punten!==undefined&&d.punten!==null)parts.push(`${esc(d.punten)} pt`);
+  if(d.punten_was!==undefined)parts.push(`${esc(d.punten_was)} → ${esc(d.punten_nu)} pt`);
+  if(d.naam_was!==undefined)parts.push(`${esc(d.naam_was)} → ${esc(d.naam_nu)}`);
+  if(d.leden_nu!==undefined)parts.push('leden: '+esc(String(d.leden_nu).replace(/\n/g,', ')));
+  if(d.tekst)parts.push('📝 '+esc(d.tekst));
+  if(d.notitie)parts.push('📝 '+esc(d.notitie));
+  if(d.tekst_was!==undefined)parts.push(esc(d.tekst_was)+' → '+esc(d.tekst_nu));
+  if(d.naam&&d.user_id)parts.push(esc(d.naam));
+  if(d.resultaat)parts.push(Object.entries(d.resultaat).map(([k,v])=>`T${k}: ${v.kaartjes} kaartjes/${v.punten} pt`).join(', '));
+  return parts.join(' · ');
+}
+function admLog(){
+  const q=S.logQ.toLowerCase();
+  const rows=S.adm.log.filter(l=>!q||(l.actor+' '+l.action+' '+JSON.stringify(l.details)).toLowerCase().includes(q));
+  let h=`<div class="toolbar"><input type="search" id="logq" placeholder="Filter logboek (team, naam, kaartje…)" value="${esc(S.logQ)}" style="flex:1"><button class="btn sec sm" data-act="log-refresh">Ververs</button><button class="btn sec sm" data-act="log-csv">Download CSV</button></div>
+  <div class="sub" style="margin-bottom:8px">${rows.length} van ${S.adm.log.length} regels · ververst elke 5 seconden</div>`;
+  if(!rows.length)h+='<div class="empty">Nog geen regels.</div>';
+  rows.slice(0,400).forEach(l=>{h+=`<div class="logrow"><time>${fmtFull(l.at)} · ${esc(l.actor||'')}</time><b>${esc(l.action)}</b> ${logDesc(l)?'— '+logDesc(l):''}</div>`});
+  return h;
+}
+function admTeams(){
+  return S.data.teams.map(t=>`<div class="box" style="border-left:10px solid ${esc(t.color)}"><div class="grid2">
+    <div><label class="sub">Teamnaam</label><input type="text" id="t_name_${t.id}" value="${esc(t.name)}"></div>
+    <div><label class="sub">Kleur</label><input type="color" id="t_col_${t.id}" value="${esc(t.color)}" style="width:100%;height:44px;border:1px solid #c9cfe3;border-radius:10px"></div></div>
+    <label class="sub">Teamleden (één per regel)</label><textarea id="t_mem_${t.id}">${esc(t.members)}</textarea>
+    <div class="dbtn"><button class="btn" data-act="team-save" data-team="${t.id}">Opslaan</button></div></div>`).join('');
+}
+function admCards(){
+  const d=S.data;
+  let h=`<div class="box"><b>Eigen aantal kaartjes per team</b>
+  <p class="sub">Geef per team het totaal aantal kaartjes (inclusief de kaartjes voor alle teams en het hooligan-kaartje). De rest wordt willekeurig verdeeld, zo eerlijk mogelijk op punten. Niet-afgevinkte toewijzingen worden vervangen.</p>
+  <div class="grid2">${d.teams.map(t=>`<div><label class="sub">${esc(t.name)}</label><input type="number" min="0" data-deal="${t.id}" value="${S.deal[t.id]!==undefined?S.deal[t.id]:assignedCount(t.id)}"></div>`).join('')}</div>
+  <label style="display:block;margin:8px 0"><input type="checkbox" data-dealov ${S.dealOverlap?'checked':''}> Kaartjes mogen bij meerdere teams voorkomen (nodig als de totalen groter zijn dan het aantal kaartjes)</label>
+  <button class="btn" data-act="deal">Verdeel willekeurig</button></div>
+  <div class="toolbar"><button class="btn sm" data-act="assign-mode" data-mode="all">Alles aan alle teams</button>
+  <button class="btn sm" data-act="assign-mode" data-mode="spread">Verdelen over teams</button>
+  <button class="btn sec sm" data-act="assign-mode" data-mode="clear">Niet-gedane toewijzingen wissen</button>
+  <button class="btn ok sm" data-act="card-new">+ Nieuw kaartje</button></div>
+  <div class="sub" style="margin-bottom:8px">Vink aan welk team welk kaartje krijgt. Bij “verdelen” krijgt elk kaartje één team (kaartjes voor alle teams en de hooligan-kaartjes blijven zoals ze horen).</div>
+  <div style="overflow:auto"><table><thead><tr><th>#</th><th>Pt</th><th>Kaartje</th>${d.teams.map(t=>`<th class="c" style="border-bottom:4px solid ${esc(t.color)}">${esc(t.name)}</th>`).join('')}<th></th></tr></thead><tbody>`;
+  d.cards.forEach(c=>{
+    h+=`<tr><td>${cardLabel(c)}</td><td><input type="number" data-act="card-pts" data-card="${c.id}" value="${c.points}" style="width:62px;padding:6px"></td><td>${esc(c.body)}${c.exclusive?' <span class="badge">1 team</span>':''}${c.all_teams?' <span class="badge">alle</span>':''}</td>
+    ${d.teams.map(t=>{const a=S.assign[c.id+'_'+t.id];return`<td class="c"><input type="checkbox" data-act="assign" data-card="${c.id}" data-team="${t.id}" ${a?'checked':''}>${a&&a.done?'<div class="meta">✓</div>':''}</td>`}).join('')}
+    <td><button class="btn sec sm" data-act="card-edit" data-card="${c.id}">Wijzig</button></td></tr>`;
+  });
+  h+=`<tr style="background:#f3f5fc"><td colspan="3"><b>Aantal kaartjes</b></td>${d.teams.map(t=>`<td class="c"><b>${assignedCount(t.id)}</b></td>`).join('')}<td></td></tr>`;
+  h+=`<tr style="background:#f3f5fc"><td colspan="3"><b>Totaal te halen punten</b></td>${d.teams.map(t=>{let s=0;d.assign.forEach(a=>{if(a.team_id===t.id&&S.cards[a.card_id])s+=effPts(a,S.cards[a.card_id])});return`<td class="c"><b>${s}</b></td>`}).join('')}<td></td></tr>`;
+  return h+'</tbody></table></div>';
+}
+function admUsers(){
+  let h=`<div class="sub" style="margin-bottom:8px">Dit zijn de pincodes. Pas namen aan (die komen in het logboek) en koppel een spelersraadlid aan een team (dat team opent bij het inloggen).</div>`;
+  S.adm.users.forEach(u=>{
+    h+=`<div class="box"><div class="grid2"><div><label class="sub">Naam</label><input type="text" id="u_name_${u.id}" value="${esc(u.name)}"></div>
+    <div><label class="sub">Pincode</label><input type="text" id="u_pin_${u.id}" value="${esc(u.pin)}"></div></div>
+    <div class="grid2" style="margin-top:6px"><div><label class="sub">Rol</label><input type="text" value="${u.role==='admin'?'Beheerder':'Spelersraad'}" disabled></div>
+    <div><label class="sub">Team</label><select id="u_team_${u.id}"><option value="">—</option>${S.data.teams.map(t=>`<option value="${t.id}" ${u.team_id===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div></div>
+    <div class="dbtn"><button class="btn" data-act="user-save" data-id="${u.id}">Opslaan</button></div></div>`;
+  });
+  return h;
+}
+function admSettings(){
+  const hid=S.data.hidden_setting;
+  return`<div class="box"><h3 style="margin-top:0">Kruiswoordpuzzel</h3><p class="sub">Punten die een team krijgt voor een opgeloste puzzel.</p>
+  <div class="grid2"><input type="number" id="pz_pts" value="${S.data.puzzle_points}"><button class="btn" data-act="pzpts">Opslaan</button></div></div>
+  <div class="box"><h3 style="margin-top:0">Ranglijst</h3><p class="sub">Verbergt de scores voor iedereen zonder pincode (spanning voor de prijsuitreiking).</p>
+  <button class="btn ${hid?'ok':''}" data-act="hidden-toggle">${hid?'Ranglijst nu tonen':'Ranglijst verbergen'}</button></div>
+  <div class="box"><h3 style="margin-top:0">Gegevens</h3>
+  <div class="toolbar"><button class="btn sec" data-act="export-json">Download back-up (JSON)</button>
+  <button class="btn warn" data-act="reset-scores">Alle scores resetten</button>
+  <button class="btn warn" data-act="reset-log">Logboek wissen</button></div></div>
+  <div class="box"><h3 style="margin-top:0">Morgen alles opruimen</h3>
+  <p class="sub">Plak dit script in de Supabase SQL-editor van het project. Het verwijdert alleen de kroegentocht-tabellen en -functies (kt_…).</p>
+  <pre id="teardown">${esc(TEARDOWN_SQL)}</pre><button class="btn sec sm" data-act="copy-teardown">Kopieer script</button></div>`;
+}
+async function loadAdmin(force){
+  if(!isAdmin())return;
+  try{
+    if(S.tab==='log'){const r=await rpc('kt_admin_log',{p_pin:S.pin,p_limit:1000});const raw=JSON.stringify(r);
+      if(raw!==S.adm.logRaw||force){S.adm.logRaw=raw;S.adm.log=r;if(S.view==='beheerder'&&S.tab==='log')render()}}
+    else if(S.tab==='users'){const r=await rpc('kt_admin_users',{p_pin:S.pin});const raw=JSON.stringify(r);
+      if(raw!==S.adm.usersRaw||force){S.adm.usersRaw=raw;S.adm.users=r;if(S.view==='beheerder'&&S.tab==='users')render()}}
+  }catch(e){toast(e.message,'err')}
+}
+
+/* ---------- actions ---------- */
+function copyText(t){
+  if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).then(()=>toast('Gekopieerd')).catch(()=>toast('Kopiëren mislukt','err'));
+  const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Gekopieerd')}catch(e){toast('Kopiëren mislukt','err')}ta.remove();
+}
+function download(name,text,type){
+  try{const b=new Blob([text],{type});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+  catch(e){toast('Downloaden niet mogelijk','err')}
+}
+function cardModal(c){
+  const isNew=!c;c=c||{points:5,body:'',exclusive:false,all_teams:false};
+  modal(isNew?'Nieuw kaartje':'Kaartje wijzigen',
+   `<label>Punten</label><input id="c_pts" type="number" value="${c.points}"><label>Opdracht</label><textarea id="c_body">${esc(c.body)}</textarea>
+   <label><input type="checkbox" id="c_ex" ${c.exclusive?'checked':''}> Maar één team mag dit halen (waarschuwing bij dubbel)</label>
+   <label><input type="checkbox" id="c_all" ${c.all_teams?'checked':''}> Voor alle teams (bij “verdelen”)</label>`,
+   [...(isNew?[]:[{label:'Verwijder',cls:'warn',fn:()=>{modal('Kaartje verwijderen?','Alle afvinkingen van dit kaartje gaan verloren.',[{label:'Nee',cls:'sec',fn:()=>{}},{label:'Ja, verwijder',cls:'warn',fn:async()=>{await call('kt_admin_card',{p_id:c.id,p_points:c.points,p_body:c.body,p_exclusive:false,p_all_teams:false,p_delete:true},'Kaartje verwijderd')}}]);return false}}]),
+    {label:'Annuleer',cls:'sec',fn:()=>{}},
+    {label:'Opslaan',fn:async()=>{const body=mv('c_body').trim();if(!body){toast('Vul een opdracht in','err');return false}
+      await call('kt_admin_card',{p_id:isNew?null:c.id,p_points:parseInt(mv('c_pts'),10)||0,p_body:body,p_exclusive:mv('c_ex'),p_all_teams:mv('c_all'),p_delete:false},'Opgeslagen')}}]);
+}
+function extraModal(e){
+  modal('Andere opdracht wijzigen',`<label>Omschrijving</label><input id="e_t" type="text" value="${esc(e.title)}"><label>Punten</label><input id="e_p" type="number" value="${e.points}"><label>Notitie</label><input id="e_n" type="text" value="${esc(e.note)}">`,
+   [{label:'Verwijder',cls:'warn',fn:async()=>{await call('kt_extra_delete',{p_id:e.id},'Verwijderd')}},
+    {label:'Annuleer',cls:'sec',fn:()=>{}},
+    {label:'Opslaan',fn:async()=>{await call('kt_extra_save',{p_id:e.id,p_team:e.team_id,p_title:mv('e_t'),p_points:parseInt(mv('e_p'),10)||0,p_note:mv('e_n')},'Opgeslagen')}}]);
+}
+
+document.addEventListener('click',async ev=>{
+  const mb=ev.target.closest('[data-mb]');
+  if(mb){const b=modalBtns[+mb.dataset.mb];if(!b)return;const r=await b.fn();if(r!==false)closeModal();return}
+  if(ev.target.classList&&ev.target.classList.contains('ov')){closeModal();return}
+  const el=ev.target.closest('[data-act]');if(!el)return;
+  const a=el.dataset.act;
+  if(el.tagName==='INPUT'&&(a==='note'))return;
+  const tid=+el.dataset.team,cid=+el.dataset.card;
+  switch(a){
+   case'login':ev.preventDefault();loginModal();break;
+   case'logout':logout();break;
+   case'beamer-on':beamer(true);break;
+   case'beamer-off':beamer(false);break;
+   case'openteam':S.team=tid;store.set('kt_team',tid);location.hash='teams';break;
+   case'pickteam':S.team=tid;store.set('kt_team',tid);render(true);break;
+   case'filter':S.filter=el.dataset.f;render(true);break;
+   case'toggle':{
+     if(!canEdit())return needLogin();
+     const key=cid+'_'+tid,as=S.assign[key];if(!as)return;
+     const nv=!as.done;as.done=nv;render(true);
+     await call('kt_set_done',{p_card:cid,p_team:tid,p_done:nv});break}
+   case'editpts':{
+     const as=S.assign[cid+'_'+tid],c=S.cards[cid];
+     modal('Punten aanpassen',`<p>${esc(c.body)}</p><label>Punten voor dit team (standaard ${c.points})</label><input id="p_v" type="number" value="${effPts(as,c)}">`,
+      [{label:'Standaard',cls:'sec',fn:async()=>{await call('kt_set_points',{p_card:cid,p_team:tid,p_points:null},'Teruggezet naar '+c.points)}},
+       {label:'Annuleer',cls:'sec',fn:()=>{}},
+       {label:'Opslaan',fn:async()=>{const n=parseInt(mv('p_v'),10);if(isNaN(n)){toast('Vul een getal in','err');return false}
+         await call('kt_set_points',{p_card:cid,p_team:tid,p_points:n},'Punten aangepast')}}]);break}
+   case'proof':{if(!canEdit())return needLogin();const as=S.assign[cid+'_'+tid];if(!as)return;as.proof=!as.proof;render(true);await call('kt_set_proof',{p_card:cid,p_team:tid,p_proof:as.proof});break}
+   case'puzzle':{if(!canEdit())return needLogin();const t=S.teams[tid];await call('kt_set_puzzle',{p_team:tid,p_solved:!t.puzzle_at,p_answer:mv0('pz_ans')},t.puzzle_at?'Puzzel ingetrokken':'Puzzel opgelost!');break}
+   case'correction':{if(!canEdit())return needLogin();
+     modal('Puntencorrectie',`<label>Punten (+ erbij, − eraf)</label><input id="k_p" type="number" placeholder="bijv. -5"><label>Reden</label><input id="k_r" type="text" placeholder="Waarom?">`,
+      [{label:'Annuleer',cls:'sec',fn:()=>{}},{label:'Toepassen',fn:async()=>{const n=parseInt(mv('k_p'),10);if(isNaN(n)||n===0){toast('Vul een aantal punten in','err');return false}
+        await call('kt_extra_save',{p_id:null,p_team:tid,p_title:'Correctie: '+(mv('k_r').trim()||'zonder reden'),p_points:n,p_note:''},'Correctie verwerkt')}}]);break}
+   case'deal':{
+     const counts={};S.data.teams.forEach(t=>{const v=parseInt(S.deal[t.id]!==undefined?S.deal[t.id]:assignedCount(t.id),10)||0;counts[t.id]=Math.max(0,v-fixedCount(t.id))});
+     modal('Kaartjes verdelen?','Niet-afgevinkte toewijzingen worden vervangen door een nieuwe willekeurige verdeling.',[{label:'Annuleer',cls:'sec',fn:()=>{}},{label:'Verdeel',fn:async()=>{
+       const r=await call('kt_admin_deal',{p_counts:counts,p_overlap:S.dealOverlap});
+       if(r&&r.result){S.deal={};const lines=S.data.teams.map(t=>{const x=r.result[t.id]||{};return`${t.name}: ${x.kaartjes} kaartjes, ${x.punten} pt`});
+         setTimeout(()=>modal('Verdeling klaar',lines.map(esc).join('<br>'),[{label:'OK',fn:()=>{}}]),50)}}}]);break}
+   case'pzpts':{const n=parseInt(mv0('pz_pts'),10);if(isNaN(n)){toast('Vul een getal in','err');return}await call('kt_admin_puzzle_points',{p_points:n},'Opgeslagen');break}
+   case'arrive':{if(!canEdit())return needLogin();const t=S.teams[tid];await call('kt_set_arrival',{p_team:tid,p_on:!t.arrived_at});break}
+   case'game':S.game=el.dataset.g;store.set('kt_game',S.game);render(true);break;
+   case'gq':{const gd=S.gdraft[S.game]=S.gdraft[S.game]||{points:'',note:''};gd.points=String((parseInt(gd.points,10)||0)+ +el.dataset.n);render(true);break}
+   case'game-add':{if(!canEdit())return needLogin();
+     const g=GAMES.find(x=>x.k===el.dataset.g);const gd=S.gdraft[g.k]||{points:'',note:''};
+     const pts=parseInt(gd.points,10);if(isNaN(pts)||pts===0){toast('Vul de punten in','err');return}
+     const r=await call('kt_extra_save',{p_id:null,p_team:tid,p_title:g.l,p_points:pts,p_note:(gd.note||'').trim()},`${g.l}: ${pts>0?'+':''}${pts} pt`);
+     if(r){S.gdraft[g.k]={points:'',note:''};render(true)}break}
+   case'preset':S.draft.title=OVERIG_PRESETS[+el.dataset.i];render(true);{const p=$('#x_points');if(p)p.focus()}break;
+   case'extra-add':{
+     const title=S.draft.title.trim();if(!title){toast('Vul een omschrijving in','err');return}
+     const pts=parseInt(S.draft.points,10);if(isNaN(pts)){toast('Vul de punten in','err');return}
+     const r=await call('kt_extra_save',{p_id:null,p_team:tid,p_title:title,p_points:pts,p_note:S.draft.note},'Toegevoegd');
+     if(r){S.draft={title:'',points:'',note:''};render(true)}break}
+   case'extra-edit':{const e=S.data.extra.find(x=>x.id===+el.dataset.id);if(e)extraModal(e);break}
+   case'tab':S.tab=el.dataset.tab;render(true);loadAdmin(true);break;
+   case'log-refresh':loadAdmin(true);break;
+   case'log-csv':{const rows=[['tijd','wie','actie','details']].concat(S.adm.log.map(l=>[l.at,l.actor,l.action,JSON.stringify(l.details)]));
+     download('kroegentocht_logboek.csv',rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n'),'text/csv');break}
+   case'team-save':await call('kt_admin_team',{p_team:tid,p_name:mv0('t_name_'+tid),p_color:mv0('t_col_'+tid),p_members:mv0('t_mem_'+tid)},'Team opgeslagen');break;
+   case'assign':{const on=el.checked;const as=S.assign[cid+'_'+tid];
+     if(!on&&as&&(as.done||as.note||as.points_override!=null)){el.checked=true;
+       modal('Toewijzing intrekken?','Dit kaartje is al afgevinkt of heeft een notitie voor dit team. Die gegevens gaan verloren.',[{label:'Nee',cls:'sec',fn:()=>{}},{label:'Ja, trek in',cls:'warn',fn:async()=>{await call('kt_admin_assign',{p_card:cid,p_team:tid,p_on:false},'Ingetrokken')}}]);break}
+     await call('kt_admin_assign',{p_card:cid,p_team:tid,p_on:on});break}
+   case'assign-mode':{const m=el.dataset.mode;
+     modal('Weet je het zeker?',m==='all'?'Elk kaartje wordt aan alle teams toegewezen (bestaande afvinkingen blijven).':m==='spread'?'Niet-afgevinkte toewijzingen worden gewist en de kaartjes worden verdeeld over de teams.':'Alle niet-afgevinkte toewijzingen worden gewist.',
+      [{label:'Annuleer',cls:'sec',fn:()=>{}},{label:'Ja',fn:async()=>{await call('kt_admin_assign_mode',{p_mode:m},'Gedaan')}}]);break}
+   case'card-new':cardModal(null);break;
+   case'card-edit':cardModal(S.cards[cid]);break;
+   case'user-save':{const id=+el.dataset.id;const tv=mv0('u_team_'+id);
+     const r=await call('kt_admin_user_save',{p_id:id,p_name:mv0('u_name_'+id),p_new_pin:mv0('u_pin_'+id),p_team:tv?+tv:null},'Opgeslagen');
+     if(r){const me=S.adm.users.find(u=>u.id===id);if(!isToken(S.pin)&&me&&S.me&&me.pin===S.pin){S.pin=mv0('u_pin_'+id);store.set('kt_pin',S.pin)}await checkLogin();loadAdmin(true)}break}
+   case'hidden-toggle':await call('kt_admin_hidden',{p_hidden:!S.data.hidden_setting},'Aangepast');break;
+   case'export-json':{try{const r=await rpc('kt_admin_export',{p_pin:S.pin});download('kroegentocht_backup.json',JSON.stringify(r,null,2),'application/json')}catch(e){toast(e.message,'err')}break}
+   case'reset-scores':
+     modal('Alle scores resetten?','Alle vinkjes, aangepaste punten, notities, “andere opdrachten” en aankomsttijden worden gewist. Typ RESET om te bevestigen.<input id="rs" type="text" style="margin-top:8px">',
+      [{label:'Annuleer',cls:'sec',fn:()=>{}},{label:'Reset',cls:'warn',fn:async()=>{if(mv('rs').trim()!=='RESET'){toast('Typ RESET','err');return false}await call('kt_admin_reset',{p_what:'scores'},'Scores gereset')}}]);break;
+   case'reset-log':
+     modal('Logboek wissen?','Alle logregels worden definitief verwijderd.',[{label:'Annuleer',cls:'sec',fn:()=>{}},{label:'Wis',cls:'warn',fn:async()=>{await call('kt_admin_reset',{p_what:'log'},'Logboek gewist');loadAdmin(true)}}]);break;
+   case'copy-teardown':copyText(TEARDOWN_SQL);break;
+  }
+});
+const mv0=id=>{const e=document.getElementById(id);return e?e.value:''};
+
+document.addEventListener('change',async ev=>{
+  const el=ev.target;
+  if(el.dataset&&el.dataset.act==='card-pts'){
+    const c=S.cards[+el.dataset.card];const n=parseInt(el.value,10);if(!c||isNaN(n))return;
+    await call('kt_admin_card',{p_id:c.id,p_points:n,p_body:c.body,p_exclusive:c.exclusive,p_all_teams:c.all_teams,p_delete:false},'Punten aangepast');return;
+  }
+  if(el.dataset&&el.dataset.dealov!==undefined){S.dealOverlap=el.checked;return}
+  if(el.dataset&&el.dataset.act==='note'){
+    if(!canEdit())return;
+    const cid=+el.dataset.card,tid=+el.dataset.team;
+    await call('kt_set_note',{p_card:cid,p_team:tid,p_note:el.value},'Notitie opgeslagen');
+  }
+});
+document.addEventListener('input',ev=>{
+  const el=ev.target;
+  if(el.dataset&&el.dataset.draft){S.draft[el.dataset.draft]=el.value}
+  else if(el.dataset&&el.dataset.gdraft){(S.gdraft[S.game]=S.gdraft[S.game]||{points:'',note:''})[el.dataset.gdraft]=el.value}
+  else if(el.dataset&&el.dataset.deal){S.deal[el.dataset.deal]=el.value}
+  else if(el.id==='q'){S.q=el.value;render(true);const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
+  else if(el.id==='logq'){S.logQ=el.value;render(true);const q=$('#logq');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
+});
+document.addEventListener('focusout',()=>{setTimeout(()=>{if(S.pending&&!(document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)))render()},250)});
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'){closeModal();if(document.body.classList.contains('beamer'))beamer(false)}
+  if(ev.key==='Enter'&&$('#modal .ov')&&ev.target.tagName==='INPUT'){const b=$('#modal [data-mb]:last-child');if(b)b.click()}
+});
+
+/* ---------- live / beamer ---------- */
+function updText(){
+  if(!S.online)return'Geen verbinding – opnieuw proberen…';
+  const s=S.lastOk?Math.round((Date.now()-S.lastOk)/1000):0;
+  return'Live · bijgewerkt '+(s<2?'zojuist':s+' s geleden');
+}
+setInterval(()=>{const e=document.getElementById('upd');if(e)e.textContent=updText()},1000);
+let wakeLock=null;
+async function keepAwake(on){
+  try{if(on&&navigator.wakeLock&&!wakeLock){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null})}
+    else if(!on&&wakeLock){await wakeLock.release();wakeLock=null}}catch(e){}
+}
+function beamer(on){
+  document.body.classList.toggle('beamer',on);keepAwake(on);
+  try{if(on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
+    if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}
+  if(!on&&location.hash==='#beamer')history.replaceState(null,'','#scorebord');
+}
+
+/* ---------- routing / boot ---------- */
+function route(){
+  let h=(location.hash||'').replace(/^#\/?/,'').toLowerCase();
+  if(h==='beamer'){h='scorebord';beamer(true)}
+  S.view=['scorebord','teams','beheerder'].includes(h)?h:'scorebord';
+  if(S.data)render(true);
+  if(S.view==='beheerder')loadAdmin(true);
+}
+window.addEventListener('hashchange',route);
+(async function boot(){
+  route();
+  await checkLogin();
+  if(S.me&&S.me.team_id&&!store.get('kt_team')){S.team=S.me.team_id}
+  await load(true);
+  setInterval(()=>{if(document.hidden)return;load(false)},POLL_MS);
+  setInterval(()=>{if(!document.hidden&&S.view==='beheerder'&&isAdmin())loadAdmin(false)},5000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){load(false);if(document.body.classList.contains('beamer'))keepAwake(true)}});
+  window.addEventListener('online',()=>load(true));
+  window.addEventListener('focus',()=>load(false));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+# 50 ideeën om het scorebord te verbeteren
+(★ = veel effect, weinig werk – daar zou ik mee beginnen)
+
+## Beveiliging & betrouwbaarheid
+1. ★ Voer `supabase/beveiliging_sessies.sql` uit (blokkeert het raden van pincodes).
+2. ★ Langere pincodes (6 cijfers) voor de beheerder.
+3. Pincodes gehasht opslaan in plaats van leesbaar in de database.
+4. "Ongedaan maken" (5 sec) na afvinken, ter voorkoming van misklikken.
+5. Wijzigingen bij wegvallend bereik in een wachtrij zetten en later versturen (offline-modus).
+6. Conflictmelding als twee mensen tegelijk hetzelfde kaartje wijzigen.
+7. Automatische back-up elk uur (Supabase cron → JSON in Storage).
+8. Spelersraad alleen het eigen team laten afvinken (nu kan elk raadslid elk team aanpassen).
+9. Logboek per regel terugdraaien ("herstel deze actie").
+10. Sessie automatisch verlopen na de avond.
+
+## Live & snelheid
+11. ★ Supabase Realtime (broadcast) i.p.v. elke 3 sec pollen: wijzigingen direct, minder dataverkeer.
+12. Alleen gewijzigde gegevens ophalen (versienummer) i.p.v. de hele stand.
+13. Service worker: app laadt direct en werkt bij slecht bereik in de kroeg.
+14. Groter icoon (192/512 px) zodat "toevoegen aan beginscherm" overal netjes werkt.
+15. Melding "nieuwe versie beschikbaar – herladen".
+
+## Ranglijst & spanning
+16. ★ Animatie/confetti als een team naar plek 1 stijgt.
+17. ★ Ticker onderaan de beamer: "Team 3 haalde net 'Teamfoto met een paard' (+10)".
+18. Grafiek van de score in de loop van de avond (lijn per team).
+19. Aftellen naar de prijsuitreiking / eindtijd.
+20. "Onthul"-modus: plek 4 → 1 één voor één tonen bij Concordia.
+21. Geluidje op de beamer bij een nieuwe score.
+22. Bevriezen van de stand op een vast moment ("laatste 30 min verborgen").
+23. Statistieken: snelste kaartje, meest gehaalde kaartje, MVP (wie vinkte het meeste af).
+24. Beamer-modus automatisch wisselen tussen ranglijst, ticker en foto's.
+25. QR-code op de beamer zodat iedereen de live stand op de telefoon opent.
+
+## Bewijs & kaartjes
+26. ★ Foto/video uploaden als bewijs (Supabase Storage) i.p.v. alleen "bewijs gezien".
+27. Fotogalerij/fotomuur van alle bewijzen, ook op de beamer.
+28. Beheerder moet bewijs goedkeuren voordat punten tellen.
+29. Bonuskaartjes die op een tijdstip vrijkomen ("vanaf 22:00").
+30. Joker: per team één kaartje dubbele punten.
+31. Strafkaartjes / minpunten met vaste redenen.
+32. Kaartjes met categorieën (drinken, foto, zingen, sportief) en filter.
+33. Kaartjes importeren/exporteren via CSV.
+34. Kaartjes direct als PDF printen vanuit de app (nu losse PDF's).
+35. Kaartjes "eerst gehaald door" automatisch blokkeren bij exclusieve kaartjes.
+
+## Teams & spelers
+36. Teamlogo/foto per team.
+37. Spelers kunnen zelf met een teamcode meekijken naar hun eigen checklist (alleen lezen).
+38. Locatie van teams op een kaart (welke kroeg nu).
+39. Kroegenroute per team met tijden en "volgende kroeg".
+40. Chat of mededelingen van de organisatie naar alle teams (pushmelding).
+41. Stemmen door het publiek (bijv. beste performance/karaoke).
+
+## Beheer & gemak
+42. ★ Bevestiging bij "Verdeel willekeurig" toont eerst een voorbeeld.
+43. Meerdere edities/evenementen in één database (jaartal kiezen).
+44. Logboek filteren per team/actie met knoppen in plaats van alleen zoeken.
+45. Donkere modus.
+46. Grotere knoppen en "eenhandig" ontwerp voor gebruik met een biertje in de hand.
+47. Engelse vertaling (voor eventuele gasten).
+48. Toegankelijkheid: betere contrasten en schermlezer-labels.
+49. Eindrapport (PDF) met uitslag, statistieken en foto's om na te sturen.
+50. Instellingen-pagina voor de puntenwaarde van spelletjes (bierproeverij e.d.) als vaste presets.

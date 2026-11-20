@@ -1,0 +1,10 @@
+{
+  "name": "Kroegentocht HHC '09",
+  "short_name": "Kroegentocht",
+  "start_url": "/#scorebord",
+  "display": "standalone",
+  "background_color": "#f2f4fa",
+  "theme_color": "#1f2a8a",
+  "lang": "nl",
+  "icons": [{ "src": "/icon.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }]
+}
